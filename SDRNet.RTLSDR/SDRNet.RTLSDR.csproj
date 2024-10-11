@@ -12,10 +12,11 @@
     <FileVersion>$(VersionPrefix)</FileVersion>
     <PackageIcon>logo.jpg</PackageIcon>
     <PackageProjectUrl>https://github.com/VaKKuumDEV/SDR.NET</PackageProjectUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SDRNet.Radio\SDRNet.Radio.csproj" />
+    <PackageReference Include="SDRNet.Radio" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>

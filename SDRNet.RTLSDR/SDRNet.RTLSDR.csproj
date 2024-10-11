@@ -11,6 +11,7 @@
     <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
     <FileVersion>$(VersionPrefix)</FileVersion>
     <PackageIcon>logo.jpg</PackageIcon>
+    <PackageProjectUrl>https://github.com/VaKKuumDEV/SDR.NET</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

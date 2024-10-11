@@ -12,6 +12,7 @@
     <FileVersion>$(VersionPrefix)</FileVersion>
     <PackageIcon>logo.jpg</PackageIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/VaKKuumDEV/SDR.NET</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

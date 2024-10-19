@@ -2,16 +2,11 @@
 
 namespace SDRSharp.RTLSDR
 {
-    public unsafe class RtlSdrIO : IFrontendController, IDisposable
+    public unsafe class RtlSdrIO() : IFrontendController, IDisposable
     {
-        private RtlDevice _rtlDevice;
+        private RtlDevice? _rtlDevice;
         private uint _frequency = 105500000;
-        private Radio.SamplesAvailableDelegate _callback;
-
-        public RtlSdrIO()
-        {
-            
-        }
+        private Radio.SamplesAvailableDelegate? _callback;
 
         ~RtlSdrIO()
         {
@@ -27,11 +22,11 @@ namespace SDRSharp.RTLSDR
         {
             Close();
             _rtlDevice = new RtlDevice(index);
-            _rtlDevice.SamplesAvailable += rtlDevice_SamplesAvailable;
+            _rtlDevice.SamplesAvailable += RtlDevice_SamplesAvailable;
             _rtlDevice.Frequency = _frequency;
         }
 
-        public RtlDevice Device
+        public RtlDevice? Device
         {
             get { return _rtlDevice; }
         }
@@ -63,7 +58,7 @@ namespace SDRSharp.RTLSDR
             if (_rtlDevice != null)
             {
                 _rtlDevice.Stop();
-                _rtlDevice.SamplesAvailable -= rtlDevice_SamplesAvailable;
+                _rtlDevice.SamplesAvailable -= RtlDevice_SamplesAvailable;
                 _rtlDevice.Dispose();
                 _rtlDevice = null;
             }
@@ -89,7 +84,7 @@ namespace SDRSharp.RTLSDR
 
         public void Stop()
         {
-            _rtlDevice.Stop();
+            _rtlDevice?.Stop();
         }
 
         public bool IsSoundCardBased
@@ -120,9 +115,6 @@ namespace SDRSharp.RTLSDR
             }
         }
 
-        private void rtlDevice_SamplesAvailable(object sender, SamplesAvailableEventArgs e)
-        {
-            _callback(this, e.Buffer, e.Length);
-        }
+        private void RtlDevice_SamplesAvailable(object sender, SamplesAvailableEventArgs e) => _callback?.Invoke(this, e.Buffer, e.Length);
     }
 }

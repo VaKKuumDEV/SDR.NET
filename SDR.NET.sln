@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDRNet.Radio", "SDRNet.Radi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDRNet.RTLSDR", "SDRNet.RTLSDR\SDRNet.RTLSDR.csproj", "{1CF45F64-F64C-4D37-9F20-7BCD5CA1BE68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDRNet.RTLTCP", "SDRNet.RTLTCP\SDRNet.RTLTCP.csproj", "{D97F3CB4-E431-47E4-A8E1-F4C2438C3D38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{1CF45F64-F64C-4D37-9F20-7BCD5CA1BE68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CF45F64-F64C-4D37-9F20-7BCD5CA1BE68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CF45F64-F64C-4D37-9F20-7BCD5CA1BE68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D97F3CB4-E431-47E4-A8E1-F4C2438C3D38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D97F3CB4-E431-47E4-A8E1-F4C2438C3D38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D97F3CB4-E431-47E4-A8E1-F4C2438C3D38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D97F3CB4-E431-47E4-A8E1-F4C2438C3D38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	  <Version>1.0.0</Version>
+	  <Authors>VaKKuum</Authors>
+	  <Description>Библиотека для работы с SDR через TCP</Description>
+	  <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
+	  <FileVersion>$(VersionPrefix)</FileVersion>
+	  <PackageIcon>logo.jpg</PackageIcon>
+	  <PackageProjectUrl>https://github.com/VaKKuumDEV/SDR.NET</PackageProjectUrl>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SDRNet.Radio" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="logo.jpg">
+      <PackagePath>\</PackagePath>
+      <Pack>True</Pack>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading;
+﻿using System.Runtime.InteropServices;
 using SDRSharp.Radio;
 
 namespace SDRSharp.RTLSDR
@@ -35,10 +33,10 @@ namespace SDRSharp.RTLSDR
         private readonly bool _supportsOffsetTuning;
 
         private GCHandle _gcHandle;
-        private UnsafeBuffer _iqBuffer;
+        private UnsafeBuffer? _iqBuffer;
         private Complex* _iqPtr;
-        private Thread _worker;
-        private readonly SamplesAvailableEventArgs _eventArgs = new SamplesAvailableEventArgs();
+        private Thread? _worker;
+        private readonly SamplesAvailableEventArgs _eventArgs = new();
         private static readonly RtlSdrReadAsyncDelegate _rtlCallback = RtlSdrSamplesAvailable;
         private static readonly uint _readLength = (uint) 16 * 1024;
 
@@ -93,7 +91,7 @@ namespace SDRSharp.RTLSDR
             GC.SuppressFinalize(this);
         }
 
-        public event SamplesAvailableDelegate SamplesAvailable;
+        public event SamplesAvailableDelegate? SamplesAvailable;
 
         public void Start()
         {
@@ -131,8 +129,10 @@ namespace SDRSharp.RTLSDR
                 throw new ApplicationException("Cannot access RTL device");
             }
 
-            _worker = new Thread(StreamProc);
-            _worker.Priority = ThreadPriority.Highest;
+            _worker = new(StreamProc)
+            {
+                Priority = ThreadPriority.Highest
+            };
             _worker.Start();
         }
 
@@ -301,7 +301,7 @@ namespace SDRSharp.RTLSDR
 
         private void StreamProc()
         {
-            NativeMethods.rtlsdr_read_async(_dev, _rtlCallback, (IntPtr) _gcHandle, 0, _readLength);
+            _ = NativeMethods.rtlsdr_read_async(_dev, _rtlCallback, (IntPtr)_gcHandle, 0, _readLength);
         }
 
         private void ComplexSamplesAvailable(Complex* buffer, int length)
@@ -317,11 +317,9 @@ namespace SDRSharp.RTLSDR
         private static void RtlSdrSamplesAvailable(byte* buf, uint len, IntPtr ctx)
         {
             var gcHandle = GCHandle.FromIntPtr(ctx);
-            if (!gcHandle.IsAllocated)
-            {
-                return;
-            }
-            var instance = (RtlDevice) gcHandle.Target;
+            if (!gcHandle.IsAllocated) return;
+            var instance = (RtlDevice?) gcHandle.Target;
+            if (instance == null) return;
 
             var sampleCount = (int) len / 2;
             if (instance._iqBuffer == null || instance._iqBuffer.Length != sampleCount)

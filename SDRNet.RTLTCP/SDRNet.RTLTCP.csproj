@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-	  <Version>1.0.0</Version>
+	  <Version>1.0.1</Version>
 	  <Authors>VaKKuum</Authors>
 	  <Description>Библиотека для работы с SDR через TCP</Description>
 	  <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
@@ -13,7 +13,17 @@
 	  <PackageIcon>logo.jpg</PackageIcon>
 	  <PackageProjectUrl>https://github.com/VaKKuumDEV/SDR.NET</PackageProjectUrl>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Title>SDRNet.RTLTCP</Title>
+	  <RepositoryUrl>https://github.com/VaKKuumDEV/SDR.NET</RepositoryUrl>
+	  <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SDRNet.Radio" Version="1.0.1" />

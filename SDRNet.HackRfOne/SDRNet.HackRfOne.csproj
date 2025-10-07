@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>SDRNet.HackRfOne</Title>
+		<Authors>VaKKuum</Authors>
+		<Description>Библиотека для работы с SDR через Hack RF One</Description>
+		<PackageProjectUrl>https://github.com/VaKKuumDEV/SDR.NET</PackageProjectUrl>
+		<PackageIcon>logo.jpg</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/VaKKuumDEV/SDR.NET</RepositoryUrl>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="SDRNet.Radio" Version="1.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="logo.jpg">
+			<PackagePath>\</PackagePath>
+			<Pack>True</Pack>
+		</None>
+		<None Update="README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+		<DefineConstants>WINDOWS</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+		<DefineConstants>LINUX</DefineConstants>
+	</PropertyGroup>
+
+
+</Project>

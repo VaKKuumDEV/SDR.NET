@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe interface IFilter
     {
@@ -85,10 +85,10 @@ namespace SDRSharp.Radio
                 _offset = _queueSize * (CircularBufferSize - 1);
 
                 _coeffBuffer = UnsafeBuffer.Create(_queueSize, sizeof(float));
-                _coeffPtr = (float*) _coeffBuffer;
+                _coeffPtr = (float*)_coeffBuffer;
 
                 _queueBuffer = UnsafeBuffer.Create(_queueSize * CircularBufferSize, sizeof(float));
-                _queuePtr = (float*) _queueBuffer;
+                _queuePtr = (float*)_queueBuffer;
             }
 
             for (var i = 0; i < _queueSize; i++)
@@ -347,7 +347,7 @@ namespace SDRSharp.Radio
 
         private void ProcessStandard(float* buffer, int length)
         {
-            for (int n = 0, m = 0; n < length; n+= _decimationFactor, m++)
+            for (int n = 0, m = 0; n < length; n += _decimationFactor, m++)
             {
                 var queue = _queuePtr + _offset;
 

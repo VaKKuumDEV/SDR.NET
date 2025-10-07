@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
-using SDRSharp.Radio;
+using SDRNet.Radio;
 
-namespace SDRSharp.RTLTCP
+namespace SDRNet.RTLTCP
 {
     public enum RtlSdrTunerType
     {
@@ -18,7 +18,7 @@ namespace SDRSharp.RTLTCP
         private const int DongleInfoLength = 12;
         private const uint DefaultFrequency = 100000000;
         private readonly static int _bufferSize = 16 * 1024;
-        
+
         #region Native rtl_tcp Commands
 
         private const byte CMD_SET_FREQ = 0x1;
@@ -46,11 +46,11 @@ namespace SDRSharp.RTLTCP
         private int _frequencyCorrection;
         private SamplesAvailableDelegate? _callback;
         private Thread? _sampleThread;
-        private UnsafeBuffer? _iqBuffer;        
+        private UnsafeBuffer? _iqBuffer;
         private Complex* _iqBufferPtr;
         private Socket? _s;
-        private readonly byte [] _cmdBuffer = new byte[5];
-                            
+        private readonly byte[] _cmdBuffer = new byte[5];
+
         #region Public Properties
 
         public bool IsStreaming
@@ -70,7 +70,7 @@ namespace SDRSharp.RTLTCP
 
         public RtlSdrTunerType TunerType
         {
-            get { return (RtlSdrTunerType) _tunerType; }
+            get { return (RtlSdrTunerType)_tunerType; }
         }
 
         public double Samplerate
@@ -79,7 +79,7 @@ namespace SDRSharp.RTLTCP
             set
             {
                 _sampleRate = value;
-                SendCommand(CMD_SET_SAMPLE_RATE, (uint) _sampleRate);
+                SendCommand(CMD_SET_SAMPLE_RATE, (uint)_sampleRate);
             }
         }
 
@@ -89,7 +89,7 @@ namespace SDRSharp.RTLTCP
             set
             {
                 _frequency = value;
-                SendCommand(CMD_SET_FREQ, (uint) _frequency);
+                SendCommand(CMD_SET_FREQ, (uint)_frequency);
             }
         }
 
@@ -109,7 +109,7 @@ namespace SDRSharp.RTLTCP
             set
             {
                 _useRtlAGC = value;
-                SendCommand(CMD_SET_AGC_MODE, _useRtlAGC ? 1: 0);
+                SendCommand(CMD_SET_AGC_MODE, _useRtlAGC ? 1 : 0);
             }
         }
 
@@ -119,7 +119,7 @@ namespace SDRSharp.RTLTCP
             set
             {
                 _useTunerAGC = value;
-                SendCommand(CMD_SET_TUNER_GAIN_MODE, _useTunerAGC ? 0: 1);
+                SendCommand(CMD_SET_TUNER_GAIN_MODE, _useTunerAGC ? 0 : 1);
             }
         }
 
@@ -142,7 +142,7 @@ namespace SDRSharp.RTLTCP
 
         static RtlTcpIO()
         {
-            _lutPtr = (float*) _lutBuffer;
+            _lutPtr = (float*)_lutBuffer;
 
             const float scale = 1.0f / 127.5f;
             for (var i = 0; i < 256; i++)
@@ -155,7 +155,7 @@ namespace SDRSharp.RTLTCP
         {
             Dispose();
         }
-                
+
         public void Dispose()
         {
             if (_iqBuffer != null)
@@ -196,15 +196,15 @@ namespace SDRSharp.RTLTCP
             {
                 ParseDongleInfo(dongleInfo);
             }
-            
+
             SendCommand(CMD_SET_SAMPLE_RATE, (uint)_sampleRate);
             SendCommand(CMD_SET_FREQ_COR, _frequencyCorrection);
             SendCommand(CMD_SET_FREQ, (uint)_frequency);
             SendCommand(CMD_SET_AGC_MODE, (uint)(_useRtlAGC ? 1 : 0));
             SendCommand(CMD_SET_TUNER_GAIN_MODE, (uint)(_useTunerAGC ? 0 : 1));
-            SendCommand(CMD_SET_TUNER_GAIN_INDEX, (_tunerGainIndex));
+            SendCommand(CMD_SET_TUNER_GAIN_INDEX, _tunerGainIndex);
 
-            _sampleThread = new Thread(RecieveSamples);            
+            _sampleThread = new Thread(RecieveSamples);
             _sampleThread.Start();
         }
 
@@ -216,7 +216,7 @@ namespace SDRSharp.RTLTCP
                 _sampleThread.Join();
                 _sampleThread = null;
             }
-            _callback = null;           
+            _callback = null;
         }
 
         #region Private Methods
@@ -235,7 +235,7 @@ namespace SDRSharp.RTLTCP
                 return;
             }
             _tunerType = (uint)(buffer[4] << 24 | buffer[5] << 16 | buffer[6] << 8 | buffer[7]);
-            _tunerGainCount = (uint)(buffer[8] << 24 | buffer[9] << 16 | buffer[10] << 8 | buffer[11]);                        
+            _tunerGainCount = (uint)(buffer[8] << 24 | buffer[9] << 16 | buffer[10] << 8 | buffer[11]);
         }
 
         public bool SendCommand(byte cmd, byte[] val)
@@ -244,7 +244,7 @@ namespace SDRSharp.RTLTCP
             {
                 return false;
             }
-            
+
             _cmdBuffer[0] = cmd;
             _cmdBuffer[1] = val[3]; //Network byte order
             _cmdBuffer[2] = val[2];
@@ -261,13 +261,13 @@ namespace SDRSharp.RTLTCP
             return true;
         }
 
-        private void SendCommand(byte cmd, UInt32 val)
+        private void SendCommand(byte cmd, uint val)
         {
             var valBytes = BitConverter.GetBytes(val);
             SendCommand(cmd, valBytes);
         }
 
-        private void SendCommand(byte cmd, Int32 val)
+        private void SendCommand(byte cmd, int val)
         {
             var valBytes = BitConverter.GetBytes(val);
             SendCommand(cmd, valBytes);
@@ -281,10 +281,10 @@ namespace SDRSharp.RTLTCP
         {
             var recBuffer = new byte[_bufferSize];
             var recUnsafeBuffer = UnsafeBuffer.Create(recBuffer);
-            var recPtr = (byte*) recUnsafeBuffer;
+            var recPtr = (byte*)recUnsafeBuffer;
             _iqBuffer = UnsafeBuffer.Create(_bufferSize / 2, sizeof(Complex));
-            _iqBufferPtr = (Complex*) _iqBuffer;
-            var offs = 0;                        
+            _iqBufferPtr = (Complex*)_iqBuffer;
+            var offs = 0;
             while (_s != null && _s.Connected)
             {
                 try
@@ -303,7 +303,7 @@ namespace SDRSharp.RTLTCP
                     Close();
                     break;
                 }
-            }            
+            }
         }
 
         private void ProcessSamples(byte* rawPtr, int len)

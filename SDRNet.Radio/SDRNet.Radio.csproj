@@ -7,13 +7,23 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Authors>VaKKuum</Authors>
     <Description>Библиотека для работы с SDR</Description>
-	  <Version>1.0.0</Version>
+	  <Version>1.0.1</Version>
     <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
     <FileVersion>$(VersionPrefix)</FileVersion>
     <PackageIcon>logo.jpg</PackageIcon>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageProjectUrl>https://github.com/VaKKuumDEV/SDR.NET</PackageProjectUrl>
+    <Title>SDRNet.Radio</Title>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/VaKKuumDEV/SDR.NET</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="logo.jpg">

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe sealed class DownConverter
     {
@@ -18,7 +18,7 @@ namespace SDRSharp.Radio
         {
             _phaseCount = phaseCount;
             _oscillatorsBuffer = UnsafeBuffer.Create(sizeof(Oscillator) * phaseCount);
-            _oscillators = (Oscillator*) _oscillatorsBuffer;
+            _oscillators = (Oscillator*)_oscillatorsBuffer;
         }
 
         public double SampleRate
@@ -54,7 +54,7 @@ namespace SDRSharp.Radio
 
         private void Configure()
         {
-            if (_sampleRate == default(double))
+            if (_sampleRate == default)
             {
                 return;
             }
@@ -90,7 +90,7 @@ namespace SDRSharp.Radio
                 DSPThreadPool.QueueUserWorkItem(
                         parameter =>
                         {
-                            var index = (int) parameter;
+                            var index = (int)parameter;
                             _oscillators[index].Mix(buffer, length, index, _phaseCount);
                             Interlocked.Increment(ref _completedCount);
                             _event.Set();

@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SDRNet.Radio" Version="1.0.0" />
+    <PackageReference Include="SDRNet.Radio" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

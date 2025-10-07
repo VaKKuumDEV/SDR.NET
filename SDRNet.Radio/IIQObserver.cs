@@ -1,4 +1,4 @@
-﻿namespace SDRSharp.Radio
+﻿namespace SDRNet.Radio
 {
     public unsafe interface IIQObserver
     {

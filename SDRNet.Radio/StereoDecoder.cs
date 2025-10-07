@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
 #if !__MonoCS__
     [StructLayout(LayoutKind.Sequential, Pack = 16)]
@@ -16,9 +16,9 @@ namespace SDRSharp.Radio
         private const float PllZeta = 0.707f;
         private const float AudioGain = 0.2f;
 
-        private static readonly float _deemphasisTime = (float)50 * 1e-6f;
-        private static readonly float _pllPhaseAdjM = (float) 0.0f;
-        private static readonly float _pllPhaseAdjB = (float) -1.75;
+        private static readonly float _deemphasisTime = 50 * 1e-6f;
+        private static readonly float _pllPhaseAdjM = 0.0f;
+        private static readonly float _pllPhaseAdjB = (float)-1.75;
         private static readonly bool _isMultiThreaded = Environment.ProcessorCount > 1;
 
         private readonly SharpEvent _event = new SharpEvent(false);
@@ -136,7 +136,7 @@ namespace SDRSharp.Radio
             if (_channelBBuffer == null || _channelBBuffer.Length != length)
             {
                 _channelBBuffer = UnsafeBuffer.Create(length, sizeof(float));
-                _channelBPtr = (float*) _channelBBuffer;
+                _channelBPtr = (float*)_channelBBuffer;
             }
 
             #endregion
@@ -166,12 +166,12 @@ namespace SDRSharp.Radio
             #endregion
 
             #region Demodulate L-R
-            
+
             for (var i = 0; i < length; i++)
             {
                 var pilot = _pilotFilter->Process(baseBand[i]);
                 _pll->Process(pilot);
-                _channelBPtr[i] = baseBand[i] * Trig.Sin((float) (_pll->AdjustedPhase * 2.0));
+                _channelBPtr[i] = baseBand[i] * Trig.Sin((float)(_pll->AdjustedPhase * 2.0));
             }
 
             if (!_pll->IsLocked)
@@ -225,7 +225,7 @@ namespace SDRSharp.Radio
             {
                 var a = _channelAPtr[i];
                 var b = 2f * _channelBPtr[i];
-                interleavedStereo[i * 2]     = (a + b) * AudioGain;
+                interleavedStereo[i * 2] = (a + b) * AudioGain;
                 interleavedStereo[i * 2 + 1] = (a - b) * AudioGain;
             }
 
@@ -247,18 +247,18 @@ namespace SDRSharp.Radio
 
         public void Configure(double sampleRate, int decimationStageCount)
         {
-            _audioDecimationFactor = (int) Math.Pow(2.0, decimationStageCount);
+            _audioDecimationFactor = (int)Math.Pow(2.0, decimationStageCount);
 
             if (_sampleRate != sampleRate)
             {
                 _sampleRate = sampleRate;
 
                 _pilotFilterBuffer = UnsafeBuffer.Create(sizeof(IirFilter));
-                _pilotFilter = (IirFilter*) _pilotFilterBuffer;
+                _pilotFilter = (IirFilter*)_pilotFilterBuffer;
                 _pilotFilter->Init(IirFilterType.BandPass, DefaultPilotFrequency, _sampleRate, 500);
 
 
-                _pll->SampleRate = (float) _sampleRate;
+                _pll->SampleRate = (float)_sampleRate;
                 _pll->DefaultFrequency = DefaultPilotFrequency;
                 _pll->Range = PllRange;
                 _pll->Bandwidth = PllBandwith;
@@ -267,13 +267,13 @@ namespace SDRSharp.Radio
                 _pll->PhaseAdjB = _pllPhaseAdjB;
                 _pll->LockTime = PllLockTime;
                 _pll->LockThreshold = PllThreshold;
-                
+
                 var outputSampleRate = sampleRate / _audioDecimationFactor;
                 var coefficients = FilterBuilder.MakeBandPassKernel(outputSampleRate, 250, Vfo.MinBCAudioFrequency, Vfo.MaxBCAudioFrequency, WindowType.BlackmanHarris4);
                 _channelAFilter = new FirFilter(coefficients, 1);
                 _channelBFilter = new FirFilter(coefficients, 1);
 
-                _deemphasisAlpha = (float) (1.0 - Math.Exp(-1.0 / (outputSampleRate * _deemphasisTime)));
+                _deemphasisAlpha = (float)(1.0 - Math.Exp(-1.0 / (outputSampleRate * _deemphasisTime)));
                 _deemphasisAvgL = 0;
                 _deemphasisAvgR = 0;
             }

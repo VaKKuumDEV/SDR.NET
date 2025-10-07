@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
 #if !__MonoCS__
     [StructLayout(LayoutKind.Sequential, Pack = 16)]
@@ -33,20 +33,20 @@ namespace SDRSharp.Radio
         public IQBalancer()
         {
             _dcRemoverIBuffer = UnsafeBuffer.Create(sizeof(DcRemover));
-            _dcRemoverI = (DcRemover*) _dcRemoverIBuffer;
+            _dcRemoverI = (DcRemover*)_dcRemoverIBuffer;
             _dcRemoverI->Init(DcTimeConst);
             _dcRemoverQBuffer = UnsafeBuffer.Create(sizeof(DcRemover));
-            _dcRemoverQ = (DcRemover*) _dcRemoverQBuffer;
+            _dcRemoverQ = (DcRemover*)_dcRemoverQBuffer;
             _dcRemoverQ->Init(DcTimeConst);
             var window = FilterBuilder.MakeWindow(WindowType.Hamming, FFTBins);
             _windowBuffer = UnsafeBuffer.Create(window);
-            _windowPtr = (float*) _windowBuffer;
+            _windowPtr = (float*)_windowBuffer;
             _isMultithreaded = Environment.ProcessorCount > 1;
         }
 
         public float Phase
         {
-            get { return (float) Math.Asin(_phase); }
+            get { return (float)Math.Asin(_phase); }
         }
 
         public float Gain
@@ -87,7 +87,7 @@ namespace SDRSharp.Radio
 
         private void RemoveDC(Complex* iq, int length)
         {
-            var iPtr = (float*) iq;
+            var iPtr = (float*)iq;
             var qPtr = iPtr + 1;
 
             if (_isMultithreaded)
@@ -151,10 +151,10 @@ namespace SDRSharp.Radio
         private float Utility(float phase, float gain)
         {
             var rawFFTPtr = stackalloc byte[FFTBins * sizeof(Complex) + 16];
-            var fftPtr = (Complex*) (((long) rawFFTPtr + 15) & ~15);
+            var fftPtr = (Complex*)((long)rawFFTPtr + 15 & ~15);
 
             var rawSpectrumPtr = stackalloc byte[FFTBins * sizeof(float) + 16];
-            var spectrumPtr = (float*) (((long) rawSpectrumPtr + 15) & ~15);
+            var spectrumPtr = (float*)((long)rawSpectrumPtr + 15 & ~15);
 
             Utils.Memcpy(fftPtr, _iqPtr, FFTBins * sizeof(Complex));
             Adjust(fftPtr, FFTBins, phase, gain);
@@ -185,10 +185,10 @@ namespace SDRSharp.Radio
         private void EstimatePower()
         {
             var rawFFTPtr = stackalloc byte[FFTBins * sizeof(Complex) + 16];
-            var fftPtr = (Complex*) (((long) rawFFTPtr + 15) & ~15);
+            var fftPtr = (Complex*)((long)rawFFTPtr + 15 & ~15);
 
             var rawSpectrumPtr = stackalloc byte[FFTBins * sizeof(float) + 16];
-            var spectrumPtr = (float*) (((long) rawSpectrumPtr + 15) & ~15);
+            var spectrumPtr = (float*)((long)rawSpectrumPtr + 15 & ~15);
 
             Utils.Memcpy(fftPtr, _iqPtr, FFTBins * sizeof(Complex));
             Fourier.ApplyFFTWindow(fftPtr, _windowPtr, FFTBins);

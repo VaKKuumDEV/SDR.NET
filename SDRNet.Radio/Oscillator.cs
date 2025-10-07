@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
 #if !__MonoCS__
     [StructLayout(LayoutKind.Sequential, Pack = 16, Size = 80)]
@@ -41,11 +41,11 @@ namespace SDRSharp.Radio
 
         private void Configure()
         {
-            if (_vector.Real == default(float) && _vector.Imag == default(float))
+            if (_vector.Real == default && _vector.Imag == default)
             {
                 _vector.Real = 1.0f;
             }
-            if (_sampleRate != default(double))
+            if (_sampleRate != default)
             {
                 var anglePerSample = 2.0 * Math.PI * _frequency / _sampleRate;
                 _rotation = Complex.FromAngle(anglePerSample);

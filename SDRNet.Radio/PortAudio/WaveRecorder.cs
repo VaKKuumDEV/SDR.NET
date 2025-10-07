@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using PortAudioSharp;
 
-namespace SDRSharp.Radio.PortAudio
+namespace SDRNet.Radio.PortAudio
 {
     public unsafe delegate void AudioBufferAvailableDelegate(float* buffer, int length);
 
     public unsafe class WaveRecorder : IDisposable
     {
-        private IntPtr _streamHandle;
+        private nint _streamHandle;
         private GCHandle _gcHandle;
         private readonly AudioBufferAvailableDelegate _bufferAvailable;
         private readonly PaStreamCallbackDelegate _paCallback = PaStreamCallback;
@@ -23,7 +22,7 @@ namespace SDRSharp.Radio.PortAudio
             inputParams.suggestedLatency = 0;
             inputParams.sampleFormat = PaSampleFormat.PaFloat32;
 
-            var pe = PortAudioAPI.Pa_IsFormatSupported(ref inputParams, IntPtr.Zero, sampleRate);
+            var pe = PortAudioAPI.Pa_IsFormatSupported(ref inputParams, nint.Zero, sampleRate);
             if (pe != PaError.paNoError)
             {
                 throw new ApplicationException(pe.ToString());
@@ -34,12 +33,12 @@ namespace SDRSharp.Radio.PortAudio
             pe = PortAudioAPI.Pa_OpenStream(
                 out _streamHandle,
                 ref inputParams,
-                IntPtr.Zero,
+                nint.Zero,
                 sampleRate,
-                (uint) framesPerBuffer,
+                (uint)framesPerBuffer,
                 PaStreamFlags.PaNoFlag,
                 _paCallback,
-                (IntPtr) _gcHandle);
+                (nint)_gcHandle);
 
             if (pe != PaError.paNoError)
             {
@@ -62,7 +61,7 @@ namespace SDRSharp.Radio.PortAudio
              uint frameCount,
              ref PaStreamCallbackTimeInfo timeInfo,
              PaStreamCallbackFlags statusFlags,
-             IntPtr userData)
+             nint userData)
         {
             #region GC boilerplate
 
@@ -71,7 +70,7 @@ namespace SDRSharp.Radio.PortAudio
             {
                 return PaStreamCallbackResult.PaAbort;
             }
-            var instance = (WaveRecorder) gcHandle.Target;
+            var instance = (WaveRecorder)gcHandle.Target;
 
             #endregion
 
@@ -79,7 +78,7 @@ namespace SDRSharp.Radio.PortAudio
             {
                 if (instance._bufferAvailable != null)
                 {
-                    instance._bufferAvailable(input, (int) frameCount);
+                    instance._bufferAvailable(input, (int)frameCount);
                 }
             }
             catch
@@ -88,15 +87,15 @@ namespace SDRSharp.Radio.PortAudio
             }
 
             return PaStreamCallbackResult.PaContinue;
-         }
+        }
 
         public void Dispose()
         {
-            if (_streamHandle != IntPtr.Zero)
+            if (_streamHandle != nint.Zero)
             {
                 PortAudioAPI.Pa_StopStream(_streamHandle);
                 PortAudioAPI.Pa_CloseStream(_streamHandle);
-                _streamHandle = IntPtr.Zero;
+                _streamHandle = nint.Zero;
             }
             _gcHandle.Free();
         }

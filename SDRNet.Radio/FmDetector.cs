@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public enum FmMode
     {
@@ -17,7 +17,7 @@ namespace SDRSharp.Radio
         private const float NarrowAFGain = 0.5f;
         private const float FMGain = 0.00001f;
         private const float TimeConst = 0.000001f;
-        
+
         private const int MinHissFrequency = 4000;
         private const int MaxHissFrequency = 6000;
         private const int HissFilterOrder = 20;
@@ -39,7 +39,7 @@ namespace SDRSharp.Radio
 
         public FmDetector()
         {
-            _dcRemoverPtr = (DcRemover*) _dcRemoverBuffer;
+            _dcRemoverPtr = (DcRemover*)_dcRemoverBuffer;
             _dcRemoverPtr->Init(TimeConst);
         }
 
@@ -83,7 +83,7 @@ namespace SDRSharp.Radio
                 if (_hissBuffer == null || _hissBuffer.Length != length)
                 {
                     _hissBuffer = UnsafeBuffer.Create(length, sizeof(float));
-                    _hissPtr = (float*) _hissBuffer;
+                    _hissPtr = (float*)_hissBuffer;
                 }
 
                 Utils.Memcpy(_hissPtr, audio, length * sizeof(float));
@@ -127,7 +127,7 @@ namespace SDRSharp.Radio
                 if (value != _sampleRate)
                 {
                     _sampleRate = value;
-                    _noiseAveragingRatio = (float) (30.0 / _sampleRate);
+                    _noiseAveragingRatio = (float)(30.0 / _sampleRate);
                     var bpk = FilterBuilder.MakeBandPassKernel(_sampleRate, HissFilterOrder, MinHissFrequency, MaxHissFrequency, WindowType.BlackmanHarris4);
                     if (_hissFilter != null)
                     {
@@ -147,7 +147,7 @@ namespace SDRSharp.Radio
                 if (_squelchThreshold != value)
                 {
                     _squelchThreshold = value;
-                    _noiseThreshold = (float) Math.Log10(2 - _squelchThreshold/100.0) * HissFactor;
+                    _noiseThreshold = (float)Math.Log10(2 - _squelchThreshold / 100.0) * HissFactor;
                 }
             }
         }

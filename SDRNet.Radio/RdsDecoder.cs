@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe class RdsDecoder
     {
@@ -41,13 +41,13 @@ namespace SDRSharp.Radio
         public RdsDecoder()
         {
             _pllBuffer = UnsafeBuffer.Create(sizeof(Pll));
-            _pll = (Pll*) _pllBuffer;
+            _pll = (Pll*)_pllBuffer;
 
             _oscBuffer = UnsafeBuffer.Create(sizeof(Oscillator));
-            _osc = (Oscillator*) _oscBuffer;
+            _osc = (Oscillator*)_oscBuffer;
 
             _syncFilterBuffer = UnsafeBuffer.Create(sizeof(IirFilter));
-            _syncFilter = (IirFilter*) _syncFilterBuffer;
+            _syncFilter = (IirFilter*)_syncFilterBuffer;
         }
 
         public double SampleRate
@@ -90,13 +90,13 @@ namespace SDRSharp.Radio
             }
 
             _decimator = new IQDecimator(decimationStageCount, _sampleRate, true, false);
-            _decimationFactor = (int) Math.Pow(2.0, decimationStageCount);
+            _decimationFactor = (int)Math.Pow(2.0, decimationStageCount);
             _demodulationSampleRate = _sampleRate / _decimationFactor;
 
             var coefficients = FilterBuilder.MakeLowPassKernel(_demodulationSampleRate, 200, 2500, WindowType.BlackmanHarris4);
             _baseBandFilter.SetCoefficients(coefficients);
-            
-            _pll->SampleRate = (float) _demodulationSampleRate;
+
+            _pll->SampleRate = (float)_demodulationSampleRate;
             _pll->DefaultFrequency = 0;
             _pll->Range = PllRange;
             _pll->Bandwidth = PllBandwith;
@@ -104,7 +104,7 @@ namespace SDRSharp.Radio
             _pll->LockTime = PllLockTime;
             _pll->LockThreshold = PllLockThreshold;
 
-            var matchedFilterLength = (int) (_demodulationSampleRate / RdsBitRate) | 1;
+            var matchedFilterLength = (int)(_demodulationSampleRate / RdsBitRate) | 1;
             coefficients = FilterBuilder.MakeSin(_demodulationSampleRate, RdsBitRate, matchedFilterLength);
             _matchedFilter.SetCoefficients(coefficients);
 
@@ -124,19 +124,19 @@ namespace SDRSharp.Radio
             if (_rawBuffer == null || _rawBuffer.Length != length)
             {
                 _rawBuffer = UnsafeBuffer.Create(length, sizeof(Complex));
-                _rawPtr = (Complex*) _rawBuffer;
+                _rawPtr = (Complex*)_rawBuffer;
             }
 
             if (_magBuffer == null || _magBuffer.Length != length)
             {
                 _magBuffer = UnsafeBuffer.Create(length, sizeof(float));
-                _magPtr = (float*) _magBuffer;
+                _magPtr = (float*)_magBuffer;
             }
 
             if (_dataBuffer == null || _dataBuffer.Length != length)
             {
                 _dataBuffer = UnsafeBuffer.Create(length, sizeof(float));
-                _dataPtr = (float*) _dataBuffer;
+                _dataPtr = (float*)_dataBuffer;
             }
 
             #endregion

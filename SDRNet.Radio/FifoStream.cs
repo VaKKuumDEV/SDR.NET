@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public enum BlockMode
     {
@@ -14,13 +14,13 @@ namespace SDRSharp.Radio
     public unsafe sealed class ComplexFifoStream : IDisposable
     {
         private const int BlockSize = 65536 / 8; // 64k / sizeof(Complex)
-        private const int MaxBlocksInCache = (4 * 1024 * 1024) / BlockSize;
+        private const int MaxBlocksInCache = 4 * 1024 * 1024 / BlockSize;
 
         private int _size;
         private int _readPos;
         private int _writePos;
         private bool _terminated;
-        private readonly int _maxSize;  
+        private readonly int _maxSize;
         private readonly SharpEvent _writeEvent;
         private readonly SharpEvent _readEvent;
         private readonly Stack<UnsafeBuffer> _usedBlocks = new Stack<UnsafeBuffer>();
@@ -181,7 +181,7 @@ namespace SDRSharp.Radio
                 {
                     int toWrite = Math.Min(BlockSize - _writePos, left);
                     var block = GetWBlock();
-                    var blockPtr = (Complex*) block;
+                    var blockPtr = (Complex*)block;
                     Utils.Memcpy(blockPtr + _writePos, buf + ofs + count - left, toWrite * sizeof(Complex));
                     _writePos += toWrite;
                     left -= toWrite;
@@ -270,7 +270,7 @@ namespace SDRSharp.Radio
                 var upper = currentBlock < _blocks.Count - 1 ? BlockSize : _writePos;
                 var toFeed = Math.Min(upper - tempBlockPos, sizeLeft);
                 var block = _blocks[currentBlock];
-                var blockPtr = (Complex*) block;
+                var blockPtr = (Complex*)block;
                 Utils.Memcpy(buf + ofs + count - sizeLeft, blockPtr + tempBlockPos, toFeed * sizeof(Complex));
                 sizeLeft -= toFeed;
                 tempBlockPos += toFeed;
@@ -291,13 +291,13 @@ namespace SDRSharp.Radio
     public unsafe sealed class FloatFifoStream : IDisposable
     {
         private const int BlockSize = 65536 / 4; // 64k / sizeof(float)
-        private const int MaxBlocksInCache = (2 * 1024 * 1024) / BlockSize;
+        private const int MaxBlocksInCache = 2 * 1024 * 1024 / BlockSize;
 
         private int _size;
         private int _readPos;
         private int _writePos;
         private bool _terminated;
-        private readonly int _maxSize;  
+        private readonly int _maxSize;
         private readonly SharpEvent _writeEvent;
         private readonly SharpEvent _readEvent;
         private readonly Stack<UnsafeBuffer> _usedBlocks = new Stack<UnsafeBuffer>();
@@ -463,7 +463,7 @@ namespace SDRSharp.Radio
                 {
                     int toWrite = Math.Min(BlockSize - _writePos, left);
                     var block = GetWBlock();
-                    var blockPtr = (float*) block;
+                    var blockPtr = (float*)block;
                     Utils.Memcpy(blockPtr + _writePos, buf + ofs + count - left, toWrite * sizeof(float));
                     _writePos += toWrite;
                     left -= toWrite;
@@ -547,7 +547,7 @@ namespace SDRSharp.Radio
                 var upper = currentBlock < _blocks.Count - 1 ? BlockSize : _writePos;
                 var toFeed = Math.Min(upper - tempBlockPos, sizeLeft);
                 var block = _blocks[currentBlock];
-                var blockPtr = (float*) block;
+                var blockPtr = (float*)block;
                 Utils.Memcpy(buf + ofs + count - sizeLeft, blockPtr + tempBlockPos, toFeed * sizeof(float));
                 sizeLeft -= toFeed;
                 tempBlockPos += toFeed;

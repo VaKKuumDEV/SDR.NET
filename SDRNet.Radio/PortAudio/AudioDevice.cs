@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using PortAudioSharp;
 
-namespace SDRSharp.Radio.PortAudio
+namespace SDRNet.Radio.PortAudio
 {
     public class AudioDevice
     {
@@ -21,7 +20,7 @@ namespace SDRSharp.Radio.PortAudio
             for (var i = 0; i < count; i++)
             {
                 var di = PortAudioAPI.Pa_GetDeviceInfo(i);
-                var deviceDirection = di.maxInputChannels > 0 ? (di.maxOutputChannels > 0 ? DeviceDirection.InputOutput : DeviceDirection.Input) : DeviceDirection.Output;
+                var deviceDirection = di.maxInputChannels > 0 ? di.maxOutputChannels > 0 ? DeviceDirection.InputOutput : DeviceDirection.Input : DeviceDirection.Output;
                 if (deviceDirection == direction || deviceDirection == DeviceDirection.InputOutput)
                 {
                     var hi = PortAudioAPI.Pa_GetHostApiInfo(di.hostApi);

@@ -2,7 +2,7 @@
 
 using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe sealed class AutomaticGainControl
     {
@@ -20,8 +20,8 @@ namespace SDRSharp.Radio
         private const float AttackRiseTimeconst = .002f;
         private const float AttackFallTimeconst = .005f;
 
-        private const float DecayRisefallRatio  = .3f; //ratio between rise and fall times of Decay time constants
-                                //adjust for best action with SSB
+        private const float DecayRisefallRatio = .3f; //ratio between rise and fall times of Decay time constants
+                                                      //adjust for best action with SSB
 
         // hang timer release decay time constant in seconds
         private const float ReleaseTimeconst = .05f;
@@ -148,14 +148,14 @@ namespace SDRSharp.Radio
 
                 if (_sampleRate > 0)
                 {
-                    _delaySamples = (int) (_sampleRate * DelayTimeconst);
-                    _windowSamples = (int) (_sampleRate * WindowTimeconst);
+                    _delaySamples = (int)(_sampleRate * DelayTimeconst);
+                    _windowSamples = (int)(_sampleRate * WindowTimeconst);
 
                     _sigDelayBuf = UnsafeBuffer.Create(_delaySamples, sizeof(float));
-                    _sigDelayBufPtr = (float*) _sigDelayBuf;
+                    _sigDelayBufPtr = (float*)_sigDelayBuf;
 
                     _magBuf = UnsafeBuffer.Create(_windowSamples, sizeof(float));
-                    _magBufPtr = (float*) _magBuf;
+                    _magBufPtr = (float*)_magBuf;
 
                     for (int i = 0; i < _windowSamples; i++)
                     {
@@ -171,19 +171,19 @@ namespace SDRSharp.Radio
             //calculate parameters for AGC gain as a function of input magnitude
             _knee = _threshold / 20.0f;
             _gainSlope = _slopeFactor / 100.0f;
-            _fixedGain = AGCOutscale * (float) Math.Pow(10.0, _knee * (_gainSlope - 1.0));    //fixed gain value used below knee threshold
+            _fixedGain = AGCOutscale * (float)Math.Pow(10.0, _knee * (_gainSlope - 1.0));    //fixed gain value used below knee threshold
 
             //calculate fast and slow filter values.
-            _attackRiseAlpha = (1.0f - (float) Math.Exp(-1.0 / (_sampleRate * AttackRiseTimeconst)));
-            _attackFallAlpha = (1.0f - (float) Math.Exp(-1.0 / (_sampleRate * AttackFallTimeconst)));
+            _attackRiseAlpha = 1.0f - (float)Math.Exp(-1.0 / (_sampleRate * AttackRiseTimeconst));
+            _attackFallAlpha = 1.0f - (float)Math.Exp(-1.0 / (_sampleRate * AttackFallTimeconst));
 
-            _decayRiseAlpha = (1.0f - (float) Math.Exp(-1.0 / (_sampleRate * Decay*.001*DecayRisefallRatio)));    //make rise time DECAY_RISEFALL_RATIO of fall
+            _decayRiseAlpha = 1.0f - (float)Math.Exp(-1.0 / (_sampleRate * Decay * .001 * DecayRisefallRatio));    //make rise time DECAY_RISEFALL_RATIO of fall
             _hangTime = (int)(_sampleRate * Decay * .001);
 
             if (_useHang)
-                _decayFallAlpha = (1.0f - (float) Math.Exp(-1.0 / (_sampleRate * ReleaseTimeconst)));
+                _decayFallAlpha = 1.0f - (float)Math.Exp(-1.0 / (_sampleRate * ReleaseTimeconst));
             else
-                _decayFallAlpha = (1.0f - (float) Math.Exp(-1.0 / (_sampleRate * Decay * .001)));
+                _decayFallAlpha = 1.0f - (float)Math.Exp(-1.0 / (_sampleRate * Decay * .001));
         }
 
         public void Process(float* buffer, int length)
@@ -207,7 +207,7 @@ namespace SDRSharp.Radio
                     _sigDelayPtr = 0;
 
                 //convert |mag| to log |mag|
-                var mag = (float) Math.Log10(Math.Abs(sample));
+                var mag = (float)Math.Log10(Math.Abs(sample));
                 if (float.IsNaN(mag) || float.IsInfinity(mag))
                 {
                     mag = -8.0f;
@@ -239,12 +239,12 @@ namespace SDRSharp.Radio
 
                 if (UseHang)
                 {    //using hang timer mode
-                    if (_peak>_attackAve)    //if magnitude is rising (use _AttackRiseAlpha time constant)
+                    if (_peak > _attackAve)    //if magnitude is rising (use _AttackRiseAlpha time constant)
                         _attackAve = (1.0f - _attackRiseAlpha) * _attackAve + _attackRiseAlpha * _peak;
                     else                    //else magnitude is falling (use  _AttackFallAlpha time constant)
                         _attackAve = (1.0f - _attackFallAlpha) * _attackAve + _attackFallAlpha * _peak;
 
-                    if (_peak>_decayAve)    //if magnitude is rising (use _DecayRiseAlpha time constant)
+                    if (_peak > _decayAve)    //if magnitude is rising (use _DecayRiseAlpha time constant)
                     {
                         _decayAve = (1.0f - _decayRiseAlpha) * _decayAve + _decayRiseAlpha * _peak;
                         _hangTimer = 0;    //reset hang timer
@@ -260,12 +260,12 @@ namespace SDRSharp.Radio
                 else
                 {    //using exponential decay mode
                     // perform average of magnitude using 2 averagers each with separate rise and fall time constants
-                    if(_peak>_attackAve)    //if magnitude is rising (use _AttackRiseAlpha time constant)
+                    if (_peak > _attackAve)    //if magnitude is rising (use _AttackRiseAlpha time constant)
                         _attackAve = (1.0f - _attackRiseAlpha) * _attackAve + _attackRiseAlpha * _peak;
                     else                    //else magnitude is falling (use  _AttackFallAlpha time constant)
                         _attackAve = (1.0f - _attackFallAlpha) * _attackAve + _attackFallAlpha * _peak;
 
-                    if(_peak>_decayAve)    //if magnitude is rising (use _DecayRiseAlpha time constant)
+                    if (_peak > _decayAve)    //if magnitude is rising (use _DecayRiseAlpha time constant)
                         _decayAve = (1.0f - _decayRiseAlpha) * _decayAve + _decayRiseAlpha * _peak;
                     else                    //else magnitude is falling (use _DecayFallAlpha time constant)
                         _decayAve = (1.0f - _decayFallAlpha) * _decayAve + _decayFallAlpha * _peak;
@@ -279,7 +279,7 @@ namespace SDRSharp.Radio
                 if (mag <= _knee)        //use fixed gain if below knee
                     gain = _fixedGain;
                 else                //use variable gain if above knee
-                    gain = AGCOutscale * (float) Math.Pow(10.0, mag * (_gainSlope - 1.0));
+                    gain = AGCOutscale * (float)Math.Pow(10.0, mag * (_gainSlope - 1.0));
 
                 buffer[i] = delayedin * gain * 0.00001f;
             }

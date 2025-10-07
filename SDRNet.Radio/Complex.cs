@@ -1,6 +1,6 @@
 using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public struct Complex
     {
@@ -21,7 +21,7 @@ namespace SDRSharp.Radio
 
         public float Modulus()
         {
-            return (float) Math.Sqrt(ModulusSquared());
+            return (float)Math.Sqrt(ModulusSquared());
         }
 
         public float ModulusSquared()
@@ -31,7 +31,7 @@ namespace SDRSharp.Radio
 
         public float Argument()
         {
-            return (float) Math.Atan2(Imag, Real);
+            return (float)Math.Atan2(Imag, Real);
         }
 
         public float ArgumentFast()
@@ -64,8 +64,8 @@ namespace SDRSharp.Radio
         public static Complex FromAngle(double angle)
         {
             Complex result;
-            result.Real = (float) Math.Cos(angle);
-            result.Imag = (float) Math.Sin(angle);
+            result.Real = (float)Math.Cos(angle);
+            result.Imag = (float)Math.Sin(angle);
             return result;
         }
 
@@ -75,12 +75,12 @@ namespace SDRSharp.Radio
         }
 
         public static bool operator ==(Complex leftHandSide, Complex rightHandSide)
-        {            
+        {
             if (leftHandSide.Real != rightHandSide.Real)
             {
                 return false;
             }
-            return (leftHandSide.Imag == rightHandSide.Imag);
+            return leftHandSide.Imag == rightHandSide.Imag;
         }
 
         public static bool operator !=(Complex leftHandSide, Complex rightHandSide)
@@ -89,7 +89,7 @@ namespace SDRSharp.Radio
             {
                 return true;
             }
-            return (leftHandSide.Imag != rightHandSide.Imag);
+            return leftHandSide.Imag != rightHandSide.Imag;
         }
 
         public static Complex operator +(Complex a, Complex b)
@@ -142,7 +142,7 @@ namespace SDRSharp.Radio
         {
             unchecked
             {
-                return (Real.GetHashCode() * 397) ^ Imag.GetHashCode();
+                return Real.GetHashCode() * 397 ^ Imag.GetHashCode();
             }
         }
 
@@ -153,8 +153,8 @@ namespace SDRSharp.Radio
 
         public override bool Equals(object obj)
         {
-            if (obj.GetType() != typeof (Complex)) return false;
-            return Equals((Complex) obj);
+            if (obj.GetType() != typeof(Complex)) return false;
+            return Equals((Complex)obj);
         }
     }
 }

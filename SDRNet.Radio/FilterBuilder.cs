@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public enum WindowType
     {
@@ -34,7 +34,7 @@ namespace SDRSharp.Radio
                 float alpha;
 
                 w[i] = 1.0f;
-                
+
                 switch (windowType)
                 {
                     case WindowType.Hamming:
@@ -43,9 +43,9 @@ namespace SDRSharp.Radio
                         a2 = 0.0f;
                         a3 = 0.0f;
                         w[i] *= a0
-                              - a1 * (float) Math.Cos(2.0 * Math.PI * i / length)
-                              + a2 * (float) Math.Cos(4.0 * Math.PI * i / length)
-                              - a3 * (float) Math.Cos(6.0 * Math.PI * i / length);
+                              - a1 * (float)Math.Cos(2.0 * Math.PI * i / length)
+                              + a2 * (float)Math.Cos(4.0 * Math.PI * i / length)
+                              - a3 * (float)Math.Cos(6.0 * Math.PI * i / length);
                         break;
 
                     case WindowType.Blackman:
@@ -54,9 +54,9 @@ namespace SDRSharp.Radio
                         a2 = 0.08f;
                         a3 = 0.0f;
                         w[i] *= a0
-                              - a1 * (float) Math.Cos(2.0 * Math.PI * i / length)
-                              + a2 * (float) Math.Cos(4.0 * Math.PI * i / length)
-                              - a3 * (float) Math.Cos(6.0 * Math.PI * i / length);
+                              - a1 * (float)Math.Cos(2.0 * Math.PI * i / length)
+                              + a2 * (float)Math.Cos(4.0 * Math.PI * i / length)
+                              - a3 * (float)Math.Cos(6.0 * Math.PI * i / length);
                         break;
 
                     case WindowType.BlackmanHarris4:
@@ -65,9 +65,9 @@ namespace SDRSharp.Radio
                         a2 = 0.14128f;
                         a3 = 0.01168f;
                         w[i] *= a0
-                              - a1 * (float) Math.Cos(2.0 * Math.PI * i / length)
-                              + a2 * (float) Math.Cos(4.0 * Math.PI * i / length)
-                              - a3 * (float) Math.Cos(6.0 * Math.PI * i / length);
+                              - a1 * (float)Math.Cos(2.0 * Math.PI * i / length)
+                              + a2 * (float)Math.Cos(4.0 * Math.PI * i / length)
+                              - a3 * (float)Math.Cos(6.0 * Math.PI * i / length);
                         break;
 
                     case WindowType.BlackmanHarris7:
@@ -79,18 +79,18 @@ namespace SDRSharp.Radio
                         a5 = 0.00077658482522f;
                         a6 = 0.00001388721735f;
                         w[i] *= a0
-                              - a1 * (float) Math.Cos(2.0 * Math.PI * i / length)
-                              + a2 * (float) Math.Cos(4.0 * Math.PI * i / length)
-                              - a3 * (float) Math.Cos(6.0 * Math.PI * i / length)
-                              + a4 * (float) Math.Cos(8.0 * Math.PI * i / length)
-                              - a5 * (float) Math.Cos(10.0 * Math.PI * i / length)
-                              + a6 * (float) Math.Cos(12.0 * Math.PI * i / length);
+                              - a1 * (float)Math.Cos(2.0 * Math.PI * i / length)
+                              + a2 * (float)Math.Cos(4.0 * Math.PI * i / length)
+                              - a3 * (float)Math.Cos(6.0 * Math.PI * i / length)
+                              + a4 * (float)Math.Cos(8.0 * Math.PI * i / length)
+                              - a5 * (float)Math.Cos(10.0 * Math.PI * i / length)
+                              + a6 * (float)Math.Cos(12.0 * Math.PI * i / length);
                         break;
 
                     case WindowType.HannPoisson:
                         n = i - length / 2.0f;
                         alpha = 0.005f;
-                        w[i] *= 0.5f * (float) ((1.0 + Math.Cos(2.0 * Math.PI * n / length)) * Math.Exp(-2.0 * alpha * Math.Abs(n) / length));
+                        w[i] *= 0.5f * (float)((1.0 + Math.Cos(2.0 * Math.PI * n / length)) * Math.Exp(-2.0 * alpha * Math.Abs(n) / length));
                         break;
 
                     case WindowType.Youssef:
@@ -101,10 +101,10 @@ namespace SDRSharp.Radio
                         n = i - length / 2.0f;
                         alpha = 0.005f;
                         w[i] *= a0
-                              - a1 * (float) Math.Cos(2.0 * Math.PI * i / length)
-                              + a2 * (float) Math.Cos(4.0 * Math.PI * i / length)
-                              - a3 * (float) Math.Cos(6.0 * Math.PI * i / length);
-                        w[i] *= (float) Math.Exp(-2.0 * alpha * Math.Abs(n) / length);
+                              - a1 * (float)Math.Cos(2.0 * Math.PI * i / length)
+                              + a2 * (float)Math.Cos(4.0 * Math.PI * i / length)
+                              - a3 * (float)Math.Cos(6.0 * Math.PI * i / length);
+                        w[i] *= (float)Math.Exp(-2.0 * alpha * Math.Abs(n) / length);
                         break;
                 }
             }
@@ -126,11 +126,11 @@ namespace SDRSharp.Radio
                 var n = i - length / 2;
                 if (n == 0)
                 {
-                    h[i] = (float) freqInRad;
+                    h[i] = (float)freqInRad;
                 }
                 else
                 {
-                    h[i] = (float) (Math.Sin(freqInRad * n) / n);
+                    h[i] = (float)(Math.Sin(freqInRad * n) / n);
                 }
             }
 
@@ -150,7 +150,7 @@ namespace SDRSharp.Radio
             var halfLength = length / 2;
             for (var i = 0; i <= halfLength; i++)
             {
-                var y = (float) Math.Sin(freqInRad * i);
+                var y = (float)Math.Sin(freqInRad * i);
                 h[halfLength + i] = y;
                 h[halfLength - i] = -y;
             }
@@ -188,7 +188,7 @@ namespace SDRSharp.Radio
             for (var i = 0; i < h.Length; i++)
             {
                 var n = i - filterOrder / 2;
-                h[i] *= (float) (2 * Math.Cos(shiftRadians * n));
+                h[i] *= (float)(2 * Math.Cos(shiftRadians * n));
             }
             return h;
         }

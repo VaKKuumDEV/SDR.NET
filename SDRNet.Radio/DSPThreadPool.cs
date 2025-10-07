@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public static class DSPThreadPool
     {

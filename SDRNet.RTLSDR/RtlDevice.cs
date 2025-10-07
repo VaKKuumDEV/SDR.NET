@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using SDRSharp.Radio;
+using SDRNet.Radio;
 
-namespace SDRSharp.RTLSDR
+namespace SDRNet.RTLSDR
 {
     public enum SamplingMode
     {
@@ -19,7 +19,7 @@ namespace SDRSharp.RTLSDR
         private static readonly UnsafeBuffer _lutBuffer = UnsafeBuffer.Create(256, sizeof(float));
 
         private readonly uint _index;
-        private IntPtr _dev;
+        private nint _dev;
         private readonly string _name;
         private readonly int[] _supportedGains;
         private bool _useTunerAGC = true;
@@ -38,11 +38,11 @@ namespace SDRSharp.RTLSDR
         private Thread? _worker;
         private readonly SamplesAvailableEventArgs _eventArgs = new();
         private static readonly RtlSdrReadAsyncDelegate _rtlCallback = RtlSdrSamplesAvailable;
-        private static readonly uint _readLength = (uint) 16 * 1024;
+        private static readonly uint _readLength = (uint)16 * 1024;
 
         static RtlDevice()
         {
-            _lutPtr = (float*) _lutBuffer;
+            _lutPtr = (float*)_lutBuffer;
 
             const float scale = 1.0f / 127.0f;
             for (var i = 0; i < 256; i++)
@@ -59,7 +59,7 @@ namespace SDRSharp.RTLSDR
             {
                 throw new ApplicationException("Cannot open RTL device. Is the device locked somewhere?");
             }
-            var count = _dev == IntPtr.Zero ? 0 : NativeMethods.rtlsdr_get_tuner_gains(_dev, null);
+            var count = _dev == nint.Zero ? 0 : NativeMethods.rtlsdr_get_tuner_gains(_dev, null);
             if (count < 0)
             {
                 count = 0;
@@ -87,7 +87,7 @@ namespace SDRSharp.RTLSDR
             {
                 _gcHandle.Free();
             }
-            _dev = IntPtr.Zero;
+            _dev = nint.Zero;
             GC.SuppressFinalize(this);
         }
 
@@ -169,7 +169,7 @@ namespace SDRSharp.RTLSDR
             set
             {
                 _sampleRate = value;
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
                     NativeMethods.rtlsdr_set_sample_rate(_dev, _sampleRate);
                 }
@@ -185,7 +185,7 @@ namespace SDRSharp.RTLSDR
             set
             {
                 _centerFrequency = value;
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
                     NativeMethods.rtlsdr_set_center_freq(_dev, _centerFrequency);
                 }
@@ -198,7 +198,7 @@ namespace SDRSharp.RTLSDR
             set
             {
                 _useRtlAGC = value;
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
                     NativeMethods.rtlsdr_set_agc_mode(_dev, _useRtlAGC ? 1 : 0);
                 }
@@ -211,7 +211,7 @@ namespace SDRSharp.RTLSDR
             set
             {
                 _useTunerAGC = value;
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
                     NativeMethods.rtlsdr_set_tuner_gain_mode(_dev, _useTunerAGC ? 0 : 1);
                 }
@@ -224,9 +224,9 @@ namespace SDRSharp.RTLSDR
             set
             {
                 _samplingMode = value;
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
-                    NativeMethods.rtlsdr_set_direct_sampling(_dev, (int) _samplingMode);
+                    NativeMethods.rtlsdr_set_direct_sampling(_dev, (int)_samplingMode);
                 }
             }
         }
@@ -243,7 +243,7 @@ namespace SDRSharp.RTLSDR
             {
                 _useOffsetTuning = value;
 
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
                     NativeMethods.rtlsdr_set_offset_tuning(_dev, _useOffsetTuning ? 1 : 0);
                 }
@@ -261,7 +261,7 @@ namespace SDRSharp.RTLSDR
             set
             {
                 _tunerGain = value;
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
                     NativeMethods.rtlsdr_set_tuner_gain(_dev, _tunerGain);
                 }
@@ -277,7 +277,7 @@ namespace SDRSharp.RTLSDR
             set
             {
                 _frequencyCorrection = value;
-                if (_dev != IntPtr.Zero)
+                if (_dev != nint.Zero)
                 {
                     NativeMethods.rtlsdr_set_freq_correction(_dev, _frequencyCorrection);
                 }
@@ -288,7 +288,7 @@ namespace SDRSharp.RTLSDR
         {
             get
             {
-                return _dev == IntPtr.Zero ? RtlSdrTunerType.Unknown : NativeMethods.rtlsdr_get_tuner_type(_dev);
+                return _dev == nint.Zero ? RtlSdrTunerType.Unknown : NativeMethods.rtlsdr_get_tuner_type(_dev);
             }
         }
 
@@ -301,7 +301,7 @@ namespace SDRSharp.RTLSDR
 
         private void StreamProc()
         {
-            _ = NativeMethods.rtlsdr_read_async(_dev, _rtlCallback, (IntPtr)_gcHandle, 0, _readLength);
+            _ = NativeMethods.rtlsdr_read_async(_dev, _rtlCallback, (nint)_gcHandle, 0, _readLength);
         }
 
         private void ComplexSamplesAvailable(Complex* buffer, int length)
@@ -314,18 +314,18 @@ namespace SDRSharp.RTLSDR
             }
         }
 
-        private static void RtlSdrSamplesAvailable(byte* buf, uint len, IntPtr ctx)
+        private static void RtlSdrSamplesAvailable(byte* buf, uint len, nint ctx)
         {
             var gcHandle = GCHandle.FromIntPtr(ctx);
             if (!gcHandle.IsAllocated) return;
-            var instance = (RtlDevice?) gcHandle.Target;
+            var instance = (RtlDevice?)gcHandle.Target;
             if (instance == null) return;
 
-            var sampleCount = (int) len / 2;
+            var sampleCount = (int)len / 2;
             if (instance._iqBuffer == null || instance._iqBuffer.Length != sampleCount)
             {
                 instance._iqBuffer = UnsafeBuffer.Create(sampleCount, sizeof(Complex));
-                instance._iqPtr = (Complex*) instance._iqBuffer;
+                instance._iqPtr = (Complex*)instance._iqBuffer;
             }
 
             var ptr = instance._iqPtr;

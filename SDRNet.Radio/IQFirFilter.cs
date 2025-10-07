@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe sealed class IQFirFilter
     {
@@ -9,7 +9,7 @@ namespace SDRSharp.Radio
         private readonly FirFilter _iFilter;
         private readonly SharpEvent _event;
 
-        public IQFirFilter(float[] coefficients) : this (coefficients, false, 1)
+        public IQFirFilter(float[] coefficients) : this(coefficients, false, 1)
         {
         }
 
@@ -38,7 +38,7 @@ namespace SDRSharp.Radio
 
         public void Process(Complex* iq, int length)
         {
-            var ptr = (float*) iq;
+            var ptr = (float*)iq;
 
             if (_isMultiThteaded)
             {

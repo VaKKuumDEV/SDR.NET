@@ -1,4 +1,4 @@
-﻿namespace SDRSharp.Radio.PortAudio
+﻿namespace SDRNet.Radio.PortAudio
 {
     public enum DeviceDirection
     {

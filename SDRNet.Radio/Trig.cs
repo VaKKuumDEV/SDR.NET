@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public static unsafe class Trig
     {
@@ -20,39 +20,39 @@ namespace SDRSharp.Radio
 
             _sinBuffer = UnsafeBuffer.Create(sampleCount, sizeof(float));
             _cosBuffer = UnsafeBuffer.Create(sampleCount, sizeof(float));
-            _sinPtr = (float*) _sinBuffer;
-            _cosPtr = (float*) _cosBuffer;
+            _sinPtr = (float*)_sinBuffer;
+            _cosPtr = (float*)_cosBuffer;
 
-            const float twoPi = (float) (Math.PI * 2.0);
-            const float pi2 = (float) (Math.PI / 2.0);
+            const float twoPi = (float)(Math.PI * 2.0);
+            const float pi2 = (float)(Math.PI / 2.0);
             _indexScale = sampleCount / twoPi;
 
             for (var i = 0; i < sampleCount; i++)
             {
-                _sinPtr[i] = (float) Math.Sin((i + 0.5f) / sampleCount * twoPi);
-                _cosPtr[i] = (float) Math.Cos((i + 0.5f) / sampleCount * twoPi);
+                _sinPtr[i] = (float)Math.Sin((i + 0.5f) / sampleCount * twoPi);
+                _cosPtr[i] = (float)Math.Cos((i + 0.5f) / sampleCount * twoPi);
             }
 
             for (var angle = 0.0f; angle < twoPi; angle += pi2)
             {
-                _sinPtr[(int) (angle * _indexScale) & _mask] = (float) Math.Sin(angle);
-                _cosPtr[(int) (angle * _indexScale) & _mask] = (float) Math.Cos(angle);
+                _sinPtr[(int)(angle * _indexScale) & _mask] = (float)Math.Sin(angle);
+                _cosPtr[(int)(angle * _indexScale) & _mask] = (float)Math.Cos(angle);
             }
         }
 
         public static float Sin(float angle)
         {
-            return _sinPtr[(int) (angle * _indexScale) & _mask];
+            return _sinPtr[(int)(angle * _indexScale) & _mask];
         }
 
         public static float Cos(float angle)
         {
-            return _cosPtr[(int) (angle * _indexScale) & _mask];
+            return _cosPtr[(int)(angle * _indexScale) & _mask];
         }
 
         public static Complex SinCos(float rad)
         {
-            var index = (int) (rad * _indexScale) & _mask;
+            var index = (int)(rad * _indexScale) & _mask;
             Complex result;
             result.Real = _cosPtr[index];
             result.Imag = _sinPtr[index];
@@ -61,8 +61,8 @@ namespace SDRSharp.Radio
 
         public static float Atan2(float y, float x)
         {
-            const float pi = (float) Math.PI;
-            const float pi2 = (float) (Math.PI / 2.0);
+            const float pi = (float)Math.PI;
+            const float pi2 = (float)(Math.PI / 2.0);
 
             float angle;
             if (x == 0.0)

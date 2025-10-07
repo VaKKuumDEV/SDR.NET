@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe interface IAudioProcessor
     {
         double SampleRate { set; }
         bool Bypass { get; set; }
-        void Process(float *audioBuffer, int length);
+        void Process(float* audioBuffer, int length);
     }
 }

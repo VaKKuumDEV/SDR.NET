@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public static unsafe class Fourier
     {
@@ -14,7 +14,7 @@ namespace SDRSharp.Radio
 
         static Fourier()
         {
-            _lut = (Complex*) _lutBuffer;
+            _lut = (Complex*)_lutBuffer;
 
             const double angle = TwoPi / MaxLutBins;
 
@@ -28,7 +28,7 @@ namespace SDRSharp.Radio
         {
             SpectrumPower(buffer, power, length, 0.0f);
         }
-        
+
         public static void SpectrumPower(Complex[] buffer, float[] power, int length, float offset)
         {
             if (buffer == null)
@@ -54,13 +54,13 @@ namespace SDRSharp.Radio
                 power[i] = strength;
             }
         }
-        
+
         public static void SpectrumPower(Complex* buffer, float* power, int length, float offset)
         {
             for (var i = 0; i < length; i++)
             {
                 var m = buffer[i].Real * buffer[i].Real + buffer[i].Imag * buffer[i].Imag;
-                var strength = (float) (10.0 * Math.Log10(1e-60 + m)) + offset;
+                var strength = (float)(10.0 * Math.Log10(1e-60 + m)) + offset;
                 power[i] = strength;
             }
         }
@@ -79,7 +79,7 @@ namespace SDRSharp.Radio
                 {
                     magnitude = maxPower;
                 }
-                dest[i] = (byte) ((magnitude - minPower) *  scale);
+                dest[i] = (byte)((magnitude - minPower) * scale);
             }
         }
 
@@ -97,7 +97,7 @@ namespace SDRSharp.Radio
                 {
                     magnitude = maxPower;
                 }
-                dest[i] = (byte) ((magnitude - minPower) * scale);
+                dest[i] = (byte)((magnitude - minPower) * scale);
             }
         }
 
@@ -115,11 +115,11 @@ namespace SDRSharp.Radio
             var r = sourceLength / scale / destinationLength;
             if (r > 1.0f)
             {
-                var n = (int) Math.Ceiling(r);
+                var n = (int)Math.Ceiling(r);
                 for (var i = 0; i < destinationLength; i++)
                 {
                     var k = (int)(i * r - n * 0.5f);
-                    var max = (byte) 0;
+                    var max = (byte)0;
                     for (var j = 0; j < n; j++)
                     {
                         var index = k + j + offset;
@@ -180,7 +180,7 @@ namespace SDRSharp.Radio
                 buffer[i].Imag *= window[i];
             }
         }
-        
+
         public static void ForwardTransform(Complex* buffer, int length)
         {
             if (length <= MaxLutBins)
@@ -205,7 +205,7 @@ namespace SDRSharp.Radio
             while (i > 1)
             {
                 ++m;
-                i = (i >> 1);
+                i = i >> 1;
             }
 
             j = nd2;
@@ -279,7 +279,7 @@ namespace SDRSharp.Radio
             while (i > 1)
             {
                 ++m;
-                i = (i >> 1);
+                i = i >> 1;
             }
 
             j = nd2;

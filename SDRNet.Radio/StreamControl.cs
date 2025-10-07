@@ -1,11 +1,11 @@
 using System;
 using System.Threading;
-using SDRSharp.Radio.PortAudio;
+using SDRNet.Radio.PortAudio;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe delegate void BufferNeededDelegate(Complex* iqBuffer, float* audioBuffer, int length);
-    
+
     public unsafe sealed class StreamControl : IDisposable
     {
         private enum InputType
@@ -26,20 +26,20 @@ namespace SDRSharp.Radio
 
         private Complex* _iqInPtr;
         private UnsafeBuffer _iqInBuffer;
-        
+
         private Complex* _dspInPtr;
         private UnsafeBuffer _dspInBuffer;
 
         private WavePlayer _wavePlayer;
         private WaveRecorder _waveRecorder;
         private WaveDuplex _waveDuplex;
-        private WaveFile _waveFile;      
+        private WaveFile _waveFile;
 
         private ComplexFifoStream _iqStream;
         private FloatFifoStream _audioStream;
         private Thread _waveReadThread;
         private Thread _dspThread;
-      
+
         private float _audioGain;
         private float _outputGain;
         private int _inputDevice;
@@ -54,11 +54,11 @@ namespace SDRSharp.Radio
         private InputType _inputType;
         private IFrontendController _frontend;
 
-        private readonly StreamHookManager _streamHookManager;        
-      
+        private readonly StreamHookManager _streamHookManager;
+
         public event BufferNeededDelegate BufferNeeded;
 
-        public StreamControl(): this(null)
+        public StreamControl() : this(null)
         {
 
         }
@@ -91,7 +91,7 @@ namespace SDRSharp.Radio
             set
             {
                 _audioGain = value;
-                _outputGain = (float) Math.Pow(value / 10.0, 10);
+                _outputGain = (float)Math.Pow(value / 10.0, 10);
             }
         }
 
@@ -156,13 +156,13 @@ namespace SDRSharp.Radio
             if (_dspInBuffer == null || _dspInBuffer.Length != frameCount)
             {
                 _dspInBuffer = UnsafeBuffer.Create(frameCount, sizeof(Complex));
-                _dspInPtr = (Complex*) _dspInBuffer;
+                _dspInPtr = (Complex*)_dspInBuffer;
             }
 
             if (_dspOutBuffer == null || _dspOutBuffer.Length != _dspInBuffer.Length * 2)
             {
                 _dspOutBuffer = UnsafeBuffer.Create(_dspInBuffer.Length * 2, sizeof(float));
-                _dspOutPtr = (float*) _dspOutBuffer;
+                _dspOutPtr = (float*)_dspOutBuffer;
             }
 
             #endregion
@@ -208,7 +208,7 @@ namespace SDRSharp.Radio
             if (_iqInBuffer == null || _iqInBuffer.Length != frameCount)
             {
                 _iqInBuffer = UnsafeBuffer.Create(frameCount, sizeof(Complex));
-                _iqInPtr = (Complex*) _iqInBuffer;
+                _iqInPtr = (Complex*)_iqInBuffer;
             }
 
             #endregion
@@ -263,17 +263,17 @@ namespace SDRSharp.Radio
             if (_dspInBuffer == null || _dspInBuffer.Length != _inputBufferSize)
             {
                 _dspInBuffer = UnsafeBuffer.Create(_inputBufferSize, sizeof(Complex));
-                _dspInPtr = (Complex*) _dspInBuffer;
+                _dspInPtr = (Complex*)_dspInBuffer;
             }
 
             if (_dspOutBuffer == null || _dspOutBuffer.Length != _outputBufferSize)
             {
                 _dspOutBuffer = UnsafeBuffer.Create(_outputBufferSize, sizeof(float));
-                _dspOutPtr = (float*) _dspOutBuffer;
+                _dspOutPtr = (float*)_dspOutBuffer;
             }
 
             #endregion
-            
+
             while (IsPlaying)
             {
                 var total = 0;
@@ -292,7 +292,7 @@ namespace SDRSharp.Radio
                 _audioStream.Write(_dspOutPtr, _dspOutBuffer.Length); // Blocking write
             }
         }
-      
+
         private void ProcessIQ()
         {
             if (BufferNeeded != null)
@@ -330,7 +330,7 @@ namespace SDRSharp.Radio
                 _dspInPtr[i].Imag = temp;
             }
         }
-        
+
         public void Stop()
         {
             if (_inputType == InputType.Plugin && _frontend != null)
@@ -370,7 +370,7 @@ namespace SDRSharp.Radio
             if (_streamHookManager != null)
             {
                 _streamHookManager.CloseStreams();
-                _streamHookManager.Stop();                
+                _streamHookManager.Stop();
             }
             if (_dspThread != null)
             {
@@ -390,10 +390,10 @@ namespace SDRSharp.Radio
             {
                 _iqStream.Dispose();
                 _iqStream = null;
-            }           
+            }
             if (_streamHookManager != null)
             {
-                _streamHookManager.DisposeStreams();                
+                _streamHookManager.DisposeStreams();
             }
             _audioStream = null;
             _dspOutBuffer = null;
@@ -408,11 +408,11 @@ namespace SDRSharp.Radio
             }
 
             #region Stream Hooks 
-            
+
             if (_streamHookManager != null)
-            {               
+            {
                 _streamHookManager.InitStreams(_inputBufferSize, _outputBufferSize);
-                                
+
                 if (_streamHookManager.HaveIqObservers)
                 {
                     _streamHookManager.StartIQObserverThread(_inputBufferSize);
@@ -488,10 +488,10 @@ namespace SDRSharp.Radio
             else
             {
                 _decimationStageCount = GetDecimationStageCount();
-                var decimationFactor = (int) Math.Pow(2.0, _decimationStageCount);
+                var decimationFactor = (int)Math.Pow(2.0, _decimationStageCount);
                 _inputBufferSize = _inputBufferSize / decimationFactor * decimationFactor;
                 _inputBufferSize = _inputBufferSize / _processorCount * _processorCount;
-                _bufferSizeInMs = (int) Math.Round(_inputBufferSize / _inputSampleRate * 1000);
+                _bufferSizeInMs = (int)Math.Round(_inputBufferSize / _inputSampleRate * 1000);
                 _outputSampleRate = _inputSampleRate / decimationFactor;
                 _outputBufferSize = _inputBufferSize / decimationFactor * 2;
             }
@@ -508,14 +508,14 @@ namespace SDRSharp.Radio
                 _outputDevice = outputDevice;
                 _bufferSizeInMs = bufferSizeInMs;
                 _inputSampleRate = _waveFile.SampleRate;
-                _inputBufferSize = (int) (_bufferSizeInMs * _inputSampleRate / 1000);
+                _inputBufferSize = (int)(_bufferSizeInMs * _inputSampleRate / 1000);
 
                 _decimationStageCount = GetDecimationStageCount();
 
-                var decimationFactor = (int) Math.Pow(2.0, _decimationStageCount);
+                var decimationFactor = (int)Math.Pow(2.0, _decimationStageCount);
                 _inputBufferSize = _inputBufferSize / decimationFactor * decimationFactor;
                 _inputBufferSize = _inputBufferSize / _processorCount * _processorCount;
-                _bufferSizeInMs = (int) Math.Round(_inputBufferSize / _inputSampleRate * 1000);
+                _bufferSizeInMs = (int)Math.Round(_inputBufferSize / _inputSampleRate * 1000);
                 _outputSampleRate = _inputSampleRate / decimationFactor;
                 _outputBufferSize = _inputBufferSize / decimationFactor * 2;
             }
@@ -538,14 +538,14 @@ namespace SDRSharp.Radio
 
                 _outputDevice = outputDevice;
                 _bufferSizeInMs = bufferSizeInMs;
-                _inputBufferSize = (int) (_bufferSizeInMs * _inputSampleRate / 1000);
+                _inputBufferSize = (int)(_bufferSizeInMs * _inputSampleRate / 1000);
 
                 _decimationStageCount = GetDecimationStageCount();
-                
-                var decimationFactor = (int) Math.Pow(2.0, _decimationStageCount);
+
+                var decimationFactor = (int)Math.Pow(2.0, _decimationStageCount);
                 _inputBufferSize = _inputBufferSize / decimationFactor * decimationFactor;
                 _inputBufferSize = _inputBufferSize / _processorCount * _processorCount;
-                _bufferSizeInMs = (int) Math.Round(_inputBufferSize / _inputSampleRate * 1000);
+                _bufferSizeInMs = (int)Math.Round(_inputBufferSize / _inputSampleRate * 1000);
                 _outputSampleRate = _inputSampleRate / decimationFactor;
                 _outputBufferSize = _inputBufferSize / decimationFactor * 2;
             }
@@ -569,7 +569,7 @@ namespace SDRSharp.Radio
                 result /= 2;
             }
 
-            return (int) Math.Log(result, 2.0);
-        }    
+            return (int)Math.Log(result, 2.0);
+        }
     }
 }

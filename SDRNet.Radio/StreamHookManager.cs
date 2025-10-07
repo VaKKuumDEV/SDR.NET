@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe class StreamHookManager
     {
@@ -9,7 +9,7 @@ namespace SDRSharp.Radio
         private readonly List<IAudioProcessor> _audioProcessors = new List<IAudioProcessor>();
         private readonly LinkedList<IAudioInterceptor> _audioInterceptors = new LinkedList<IAudioInterceptor>();
         private readonly List<IIQObserver> _iqObservers = new List<IIQObserver>();
-       
+
         private FloatFifoStream _firstAudioStream;
         private FloatFifoStream _lastAudioStream;
 
@@ -21,7 +21,7 @@ namespace SDRSharp.Radio
         private readonly SharpEvent _iqObserverEvent = new SharpEvent(false);
         private UnsafeBuffer _iqObserverBuffer;
         private Complex* _iqObserverBufferPtr;
-       
+
         public double OutputSampleRate
         {
             set { /*_outputSampleRate = value;*/  SetOutputSampleRate(value); }
@@ -31,22 +31,22 @@ namespace SDRSharp.Radio
         {
             set { /*_inputSampleRate = value;*/ SetInputSampleRate(value); }
         }
-       
+
         public bool HaveIqObservers
         {
-            get { return (_iqObservers.Count > 0); }
+            get { return _iqObservers.Count > 0; }
         }
 
         public bool HaveAudioInterceptors
         {
-            get { return (_audioInterceptors.Count > 0); }
+            get { return _audioInterceptors.Count > 0; }
         }
 
         public bool HaveAudioProcessors
         {
-            get { return (_audioProcessors.Count > 0); }
+            get { return _audioProcessors.Count > 0; }
         }
-        
+
         public FloatFifoStream FirstAudioStream
         {
             get { return _firstAudioStream; }
@@ -56,8 +56,8 @@ namespace SDRSharp.Radio
         {
             get { return _lastAudioStream; }
         }
-        
-        
+
+
         public void InitStreams(int inBufferSize, int outBufferSize)
         {
 
@@ -206,7 +206,7 @@ namespace SDRSharp.Radio
 
         public void ProcessIQHook(Complex* buffer, int length)
         {
-            var copyBuffer = false;                        
+            var copyBuffer = false;
             for (var i = 0; i < _iqObservers.Count; i++)
             {
                 if (_iqObservers[i].Enabled)
@@ -231,7 +231,7 @@ namespace SDRSharp.Radio
             while (_iqObserverThreadRunning)
             {
                 _iqObserverEvent.WaitOne();
-                
+
                 for (var i = 0; i < _iqObservers.Count; i++)
                 {
                     if (_iqObservers[i].Enabled)
@@ -257,13 +257,13 @@ namespace SDRSharp.Radio
                 _iqObserverBuffer = UnsafeBuffer.Create(bufferSize, sizeof(Complex));
                 _iqObserverBufferPtr = (Complex*)_iqObserverBuffer;
             }
-                
+
             _iqObserverThread = new Thread(IQObserverThread);
             _iqObserverThread.Priority = ThreadPriority.BelowNormal;
             _iqObserverThread.Name = "IQObserverThread";
 
             _iqObserverThreadRunning = true;
-            _iqObserverThread.Start();            
+            _iqObserverThread.Start();
         }
 
         public void StopIQObserverThread()
@@ -304,7 +304,7 @@ namespace SDRSharp.Radio
                 if (_audioInterceptors.Count == 0)
                 {
                     _firstAudioStream = chainHead;
-                    _lastAudioStream = chainHead;                   
+                    _lastAudioStream = chainHead;
                 }
                 else
                 {
@@ -315,7 +315,7 @@ namespace SDRSharp.Radio
                         interceptor.Output = new FloatFifoStream(BlockMode.BlockingWrite, size);
 
                         interceptor.OutputBufferSize = size;
-                        
+
                         nextInputFifo = interceptor.Output;
                     }
 
@@ -392,7 +392,7 @@ namespace SDRSharp.Radio
                 }
             }
         }
-    
+
         #endregion
 
     }

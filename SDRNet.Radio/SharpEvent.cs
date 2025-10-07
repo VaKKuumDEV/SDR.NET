@@ -2,7 +2,7 @@
 
 using System.Threading;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
 #if USE_MONITOR
 
@@ -28,7 +28,7 @@ namespace SDRSharp.Radio
         public void Dispose()
         {
             Set();
-            System.GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
 
         public void Set()

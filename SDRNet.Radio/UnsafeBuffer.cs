@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe sealed class UnsafeBuffer : IDisposable
     {
@@ -14,10 +14,10 @@ namespace SDRSharp.Radio
         {
             _buffer = buffer;
             _handle = GCHandle.Alloc(_buffer, GCHandleType.Pinned);
-            _ptr = (void*) _handle.AddrOfPinnedObject();
+            _ptr = (void*)_handle.AddrOfPinnedObject();
             if (aligned)
             {
-                _ptr = (void*) (((long) _ptr + 15) & ~15);
+                _ptr = (void*)((long)_ptr + 15 & ~15);
             }
             _length = realLength;
         }

@@ -1,6 +1,6 @@
-﻿using SDRSharp.Radio;
+﻿using SDRNet.Radio;
 
-namespace SDRSharp.RTLSDR
+namespace SDRNet.RTLSDR
 {
     public unsafe class RtlSdrIO() : IFrontendController, IDisposable
     {
@@ -107,7 +107,7 @@ namespace SDRSharp.RTLSDR
             get { return _frequency; }
             set
             {
-                _frequency = (uint) value;
+                _frequency = (uint)value;
                 if (_rtlDevice != null)
                 {
                     _rtlDevice.Frequency = _frequency;

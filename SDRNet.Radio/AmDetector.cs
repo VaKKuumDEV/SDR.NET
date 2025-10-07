@@ -1,6 +1,6 @@
 using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe sealed class AmDetector
     {
@@ -38,7 +38,7 @@ namespace SDRSharp.Radio
                 }
                 else
                 {
-                    var power = (float) (20.0f * Math.Log10(1e-60 + sample));
+                    var power = (float)(20.0f * Math.Log10(1e-60 + sample));
                     _avg = 0.99f * _avg + 0.01f * power;
                     _isSquelchOpen = _avg > _powerThreshold;
                     if (_isSquelchOpen)

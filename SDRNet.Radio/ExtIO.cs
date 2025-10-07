@@ -21,9 +21,9 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Runtime.InteropServices;
-using SDRSharp.Radio.PortAudio;
+using SDRNet.Radio.PortAudio;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public delegate void SampleRateChangedDelegate(int newSamplerate);
     public delegate void LOFrequencyChangedDelegate(int frequency);
@@ -62,13 +62,13 @@ namespace SDRSharp.Radio
         #region Win32 Native Methods
 
         [DllImport("kernel32.dll")]
-        private static extern IntPtr LoadLibrary(string dllToLoad);
+        private static extern nint LoadLibrary(string dllToLoad);
 
         [DllImport("kernel32.dll")]
-        private static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
+        private static extern nint GetProcAddress(nint hModule, string procedureName);
 
         [DllImport("kernel32.dll")]
-        private static extern bool FreeLibrary(IntPtr hModule);
+        private static extern bool FreeLibrary(nint hModule);
 
         #endregion
 
@@ -82,7 +82,7 @@ namespace SDRSharp.Radio
         public static event LOFrequencyChangedDelegate LOFreqChanged;
         public static event LOFrequencyChangeAcceptedDelegate LOFreqChangedAccepted;
         public static event ProhibitLOChangesDelegate ProhibitLOChanged;
-        
+
         #endregion
 
         #region ExtIO Callback
@@ -148,7 +148,7 @@ namespace SDRSharp.Radio
         private static HideGUIDelegate _hideGUI;
         private static SetCallbackDelegate _setCallback;
 
-        private static IntPtr _dllHandle;
+        private static nint _dllHandle;
         private static HWTypes _hwType;
         private static string _name;
         private static string _model;
@@ -157,7 +157,7 @@ namespace SDRSharp.Radio
         private static int _sampleCount;
         private static bool _isHWStarted;
         private static string _dllName;
-        private static readonly Dictionary<string, IntPtr> _handles = new Dictionary<string,IntPtr>();
+        private static readonly Dictionary<string, nint> _handles = new Dictionary<string, nint>();
 
         private static readonly ExtIOManagedCallbackDelegate _callbackInst = ExtIOCallback;
 
@@ -183,7 +183,7 @@ namespace SDRSharp.Radio
                 _dllHandle = LoadLibrary(_dllName);
             }
 
-            if (_dllHandle == IntPtr.Zero)
+            if (_dllHandle == nint.Zero)
                 throw new Exception("Unable to load ExtIO library");
 
             _initHW = null;
@@ -199,62 +199,62 @@ namespace SDRSharp.Radio
             _hideGUI = null;
             _setCallback = null;
 
-            IntPtr pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "InitHW");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _initHW = (InitHWDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(InitHWDelegate));
+            nint pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "InitHW");
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _initHW = (InitHWDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(InitHWDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "OpenHW");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _openHW = (OpenHWDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(OpenHWDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _openHW = (OpenHWDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(OpenHWDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "StartHW");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _startHW = (StartHWDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(StartHWDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _startHW = (StartHWDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(StartHWDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "StopHW");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _stopHW = (StopHWDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(StopHWDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _stopHW = (StopHWDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(StopHWDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "CloseHW");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _closeHW = (CloseHWDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(CloseHWDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _closeHW = (CloseHWDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(CloseHWDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "SetCallback");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _setCallback = (SetCallbackDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(SetCallbackDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _setCallback = (SetCallbackDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(SetCallbackDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "SetHWLO");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _setHWLO = (SetHWLODelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(SetHWLODelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _setHWLO = (SetHWLODelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(SetHWLODelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "GetHWLO");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
+            if (pAddressOfFunctionToCall != nint.Zero)
                 _getHWLO = (GetHWLODelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(GetHWLODelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "GetHWSR");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _getHWSR = (GetHWSRDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(GetHWSRDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _getHWSR = (GetHWSRDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(GetHWSRDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "GetStatus");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _getStatus = (GetStatusDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(GetStatusDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _getStatus = (GetStatusDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(GetStatusDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "ShowGUI");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _showGUI = (ShowGUIDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(ShowGUIDelegate));
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _showGUI = (ShowGUIDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(ShowGUIDelegate));
 
             pAddressOfFunctionToCall = GetProcAddress(_dllHandle, "HideGUI");
-            if (pAddressOfFunctionToCall != IntPtr.Zero)
-                _hideGUI = (HideGUIDelegate) Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(HideGUIDelegate));
-            
+            if (pAddressOfFunctionToCall != nint.Zero)
+                _hideGUI = (HideGUIDelegate)Marshal.GetDelegateForFunctionPointer(pAddressOfFunctionToCall, typeof(HideGUIDelegate));
+
             if (_initHW == null || _openHW == null || _startHW == null || _setHWLO == null ||
                _getStatus == null || _setCallback == null || _stopHW == null || _closeHW == null)
             {
                 //FreeLibrary(_dllHandle);
-                _dllHandle = IntPtr.Zero;
+                _dllHandle = nint.Zero;
                 throw new ApplicationException("ExtIO DLL is not valid");
             }
-            
+
             var name = new StringBuilder(256);
             var model = new StringBuilder(256);
             int type;
@@ -267,11 +267,11 @@ namespace SDRSharp.Radio
             if (result < 1)
             {
                 //FreeLibrary(_dllHandle);
-                _dllHandle = IntPtr.Zero;
+                _dllHandle = nint.Zero;
                 throw new ApplicationException("InitHW() returned " + result);
             }
-            
-            _hwType = (HWTypes) type;
+
+            _hwType = (HWTypes)type;
 
             /* Give the library the managed callback address */
             _setCallback(_callbackInst);
@@ -298,7 +298,7 @@ namespace SDRSharp.Radio
         {
             get
             {
-                return _dllHandle != IntPtr.Zero;
+                return _dllHandle != nint.Zero;
             }
         }
 
@@ -314,7 +314,7 @@ namespace SDRSharp.Radio
         {
             get
             {
-                if (_dllHandle != IntPtr.Zero)
+                if (_dllHandle != nint.Zero)
                     return _name;
                 return string.Empty;
             }
@@ -324,7 +324,7 @@ namespace SDRSharp.Radio
         {
             get
             {
-                if (_dllHandle != IntPtr.Zero)
+                if (_dllHandle != nint.Zero)
                     return _model;
                 return string.Empty;
             }
@@ -332,42 +332,42 @@ namespace SDRSharp.Radio
 
         public static int GetHWSR()
         {
-            if (_dllHandle != IntPtr.Zero && _getHWSR != null)
+            if (_dllHandle != nint.Zero && _getHWSR != null)
                 return _getHWSR();
             return 0;
         }
 
         public static int GetHWLO()
         {
-			int result = 0;
-            if (_dllHandle != IntPtr.Zero && _getHWLO != null)
+            int result = 0;
+            if (_dllHandle != nint.Zero && _getHWLO != null)
                 result = _getHWLO();
-			if (result < 0)
-				result = 0;
+            if (result < 0)
+                result = 0;
             return result;
         }
 
         public static void SetHWLO(int freq)
         {
-            if (_dllHandle != IntPtr.Zero & _setHWLO != null)
+            if (_dllHandle != nint.Zero & _setHWLO != null)
                 _setHWLO(freq);
         }
 
         public static void ShowGUI()
         {
-            if (_dllHandle != IntPtr.Zero && _showGUI != null)
+            if (_dllHandle != nint.Zero && _showGUI != null)
                 _showGUI();
         }
 
         public static void HideGUI()
         {
-            if (_dllHandle != IntPtr.Zero && _hideGUI != null)
+            if (_dllHandle != nint.Zero && _hideGUI != null)
                 _hideGUI();
         }
 
         public static void StartHW(int freq)
         {
-            if (_dllHandle == IntPtr.Zero || _startHW == null)
+            if (_dllHandle == nint.Zero || _startHW == null)
                 return;
 
             _iqBuffer = null;
@@ -376,26 +376,26 @@ namespace SDRSharp.Radio
             int result = _startHW(freq);
             if (result < 0)
                 throw new Exception("ExtIO StartHW() returned " + result);
-            
+
             _isHWStarted = true;
             _sampleCount = result;
 
             /* Allocate the sample buffers */
             /* We must do it here since we do not know the size until the hardware is started! */
             _iqBuffer = UnsafeBuffer.Create(_sampleCount, sizeof(Complex));
-            _iqPtr = (Complex*) _iqBuffer;
+            _iqPtr = (Complex*)_iqBuffer;
         }
 
         public static int OpenHW()
         {
-            if (_dllHandle != IntPtr.Zero && !_isHWStarted)
+            if (_dllHandle != nint.Zero && !_isHWStarted)
                 return _openHW();
             return 0;
         }
 
         public static void StopHW()
         {
-            if (_dllHandle != IntPtr.Zero && _isHWStarted)
+            if (_dllHandle != nint.Zero && _isHWStarted)
             {
                 _stopHW();
                 _isHWStarted = false;
@@ -404,11 +404,11 @@ namespace SDRSharp.Radio
 
         public static void CloseHW()
         {
-            if (_dllHandle != IntPtr.Zero && _closeHW != null)
+            if (_dllHandle != nint.Zero && _closeHW != null)
             {
                 _closeHW();
                 _isHWStarted = false;
-                _dllHandle = IntPtr.Zero;
+                _dllHandle = nint.Zero;
             }
         }
 
@@ -419,7 +419,7 @@ namespace SDRSharp.Radio
         [MethodImpl(MethodImplOptions.Synchronized)]
         private static void ExtIOCallback(int count, int status, float iqOffs, byte* dataPtr)
         {
-            /* Non-negative count means samples are ready. */           
+            /* Non-negative count means samples are ready. */
             /* Negative count means status change */
             if (count >= 0 && _isHWStarted)
             {
@@ -430,7 +430,7 @@ namespace SDRSharp.Radio
                 {
                     return;
                 }
-                
+
                 /* Convert samples to double */
 
                 var len = _iqBuffer.Length;
@@ -439,7 +439,7 @@ namespace SDRSharp.Radio
                 if (_hwType == HWTypes.Aud16BInt || _hwType == HWTypes.Sdr14)
                 {
                     const float scale = 1.0f / 32767.0f;
-                    var input = (Int16*) dataPtr;
+                    var input = (short*)dataPtr;
                     for (var i = 0; i < len; i++)
                     {
                         _iqPtr[i].Imag = *input++ * scale;
@@ -451,7 +451,7 @@ namespace SDRSharp.Radio
                 else if (_hwType == HWTypes.Aud24BInt)
                 {
                     const float scale = 1.0f / 8388607.0f;
-                    var input = (Int24*) dataPtr;
+                    var input = (Int24*)dataPtr;
                     for (var i = 0; i < len; i++)
                     {
                         _iqPtr[i].Imag = *input++ * scale;
@@ -463,7 +463,7 @@ namespace SDRSharp.Radio
                 else if (_hwType == HWTypes.Aud32BInt)
                 {
                     const float scale = 1.0f / 2147483647.0f;
-                    var input = (Int32*) dataPtr;
+                    var input = (int*)dataPtr;
                     for (var i = 0; i < len; i++)
                     {
                         _iqPtr[i].Imag = *input++ * scale;
@@ -474,7 +474,7 @@ namespace SDRSharp.Radio
                 /* 32 bit float samples */
                 else if (_hwType == HWTypes.Aud32BFloat)
                 {
-                    var input = (float*) dataPtr;
+                    var input = (float*)dataPtr;
                     for (var i = 0; i < len; i++)
                     {
                         _iqPtr[i].Imag = *input++;
@@ -491,7 +491,7 @@ namespace SDRSharp.Radio
             {
                 /* Handle ExtIO status events. */
                 /* Only the interesting ones for now */
-                switch ((StatusEvent) status)
+                switch ((StatusEvent)status)
                 {
                     case StatusEvent.LOChange:
                         if (LOFreqChanged != null)
@@ -515,7 +515,7 @@ namespace SDRSharp.Radio
                 }
             }
         }
-    
+
         #endregion
     }
 }

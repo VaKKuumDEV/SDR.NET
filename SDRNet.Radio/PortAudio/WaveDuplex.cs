@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using PortAudioSharp;
 
-namespace SDRSharp.Radio.PortAudio
+namespace SDRNet.Radio.PortAudio
 {
     public unsafe class WaveDuplex : IDisposable
     {
-        private IntPtr _streamHandle;
+        private nint _streamHandle;
         private GCHandle _gcHandle;
         private readonly AudioBufferAvailableDelegate _bufferAvailable;
         private readonly PaStreamCallbackDelegate _paCallback = PaStreamCallback;
@@ -34,10 +33,10 @@ namespace SDRSharp.Radio.PortAudio
                 ref deviceParams,
                 ref deviceParams,
                 sampleRate,
-                (uint) framesPerBuffer,
+                (uint)framesPerBuffer,
                 PaStreamFlags.PaNoFlag,
                 _paCallback,
-                (IntPtr) _gcHandle);
+                (nint)_gcHandle);
 
             if (pe != PaError.paNoError)
             {
@@ -60,7 +59,7 @@ namespace SDRSharp.Radio.PortAudio
              uint frameCount,
              ref PaStreamCallbackTimeInfo timeInfo,
              PaStreamCallbackFlags statusFlags,
-             IntPtr userData)
+             nint userData)
         {
             #region GC boilerplate
 
@@ -69,16 +68,16 @@ namespace SDRSharp.Radio.PortAudio
             {
                 return PaStreamCallbackResult.PaAbort;
             }
-            var instance = (WaveDuplex) gcHandle.Target;
+            var instance = (WaveDuplex)gcHandle.Target;
 
             #endregion
 
             try
             {
-                Utils.Memcpy(output, input, (int) frameCount * 2 * sizeof(float));
+                Utils.Memcpy(output, input, (int)frameCount * 2 * sizeof(float));
                 if (instance._bufferAvailable != null)
                 {
-                    instance._bufferAvailable(output, (int) frameCount);
+                    instance._bufferAvailable(output, (int)frameCount);
                 }
             }
             catch
@@ -87,15 +86,15 @@ namespace SDRSharp.Radio.PortAudio
             }
 
             return PaStreamCallbackResult.PaContinue;
-         }
+        }
 
         public void Dispose()
         {
-            if (_streamHandle != IntPtr.Zero)
+            if (_streamHandle != nint.Zero)
             {
                 PortAudioAPI.Pa_StopStream(_streamHandle);
                 PortAudioAPI.Pa_CloseStream(_streamHandle);
-                _streamHandle = IntPtr.Zero;
+                _streamHandle = nint.Zero;
             }
             _gcHandle.Free();
         }

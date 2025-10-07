@@ -1,4 +1,4 @@
-﻿namespace SDRSharp.RTLSDR
+﻿namespace SDRNet.RTLSDR
 {
     public class DeviceDisplay
     {

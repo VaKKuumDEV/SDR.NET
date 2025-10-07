@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public class SharpThreadPool
     {
@@ -29,7 +29,7 @@ namespace SDRSharp.Radio
         private int _threadsWaiting;
         private bool _terminated;
 
-        public SharpThreadPool() :  this(Environment.ProcessorCount)
+        public SharpThreadPool() : this(Environment.ProcessorCount)
         {
         }
 
@@ -103,7 +103,7 @@ namespace SDRSharp.Radio
                 workItem.Invoke();
             }
         }
-        
+
         public void Dispose()
         {
             _terminated = true;

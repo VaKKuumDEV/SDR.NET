@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public enum IirFilterType
     {
@@ -34,44 +34,44 @@ namespace SDRSharp.Radio
         {
             var w0 = 2.0 * Math.PI * frequency / sampleRate;
             var alpha = Math.Sin(w0) / (2.0 * qualityFactor);
-            
+
             switch (filterType)
             {
                 case IirFilterType.LowPass:
-                    _b0 = (float) ((1.0 - Math.Cos(w0)) / 2.0);
-                    _b1 = (float) ( 1.0 - Math.Cos(w0));
-                    _b2 = (float) ((1.0 - Math.Cos(w0)) / 2.0);
-                    _a0 = (float) ( 1.0 + alpha);
-                    _a1 = (float) (-2.0 * Math.Cos(w0));
-                    _a2 = (float) ( 1.0 - alpha);
+                    _b0 = (float)((1.0 - Math.Cos(w0)) / 2.0);
+                    _b1 = (float)(1.0 - Math.Cos(w0));
+                    _b2 = (float)((1.0 - Math.Cos(w0)) / 2.0);
+                    _a0 = (float)(1.0 + alpha);
+                    _a1 = (float)(-2.0 * Math.Cos(w0));
+                    _a2 = (float)(1.0 - alpha);
                     break;
 
                 case IirFilterType.HighPass:
-                    _b0 = (float) ( (1.0 + Math.Cos(w0)) / 2.0);
-                    _b1 = (float) (-(1.0 + Math.Cos(w0)));
-                    _b2 = (float) ( (1.0 + Math.Cos(w0)) / 2.0);
-                    _a0 = (float) (  1.0 + alpha);
-                    _a1 = (float) ( -2.0 * Math.Cos(w0));
-                    _a2 = (float) (  1.0 - alpha);
+                    _b0 = (float)((1.0 + Math.Cos(w0)) / 2.0);
+                    _b1 = (float)-(1.0 + Math.Cos(w0));
+                    _b2 = (float)((1.0 + Math.Cos(w0)) / 2.0);
+                    _a0 = (float)(1.0 + alpha);
+                    _a1 = (float)(-2.0 * Math.Cos(w0));
+                    _a2 = (float)(1.0 - alpha);
                     break;
 
                 //case IirFilterType.BandPass:
                 default:
-                    _b0 = (float) (alpha);
+                    _b0 = (float)alpha;
                     _b1 = 0.0f;
-                    _b2 = (float) (-alpha);
-                    _a0 = (float) ( 1.0 + alpha);
-                    _a1 = (float) (-2.0 * Math.Cos(w0));
-                    _a2 = (float) ( 1.0 - alpha);
+                    _b2 = (float)-alpha;
+                    _a0 = (float)(1.0 + alpha);
+                    _a1 = (float)(-2.0 * Math.Cos(w0));
+                    _a2 = (float)(1.0 - alpha);
                     break;
 
                 case IirFilterType.Notch:
                     _b0 = 1.0f;
-                    _b1 = (float) (-2.0 * Math.Cos(w0));
+                    _b1 = (float)(-2.0 * Math.Cos(w0));
                     _b2 = 1.0f;
-                    _a0 = (float) ( 1.0 + alpha);
-                    _a1 = (float) (-2.0 * Math.Cos(w0));
-                    _a2 = (float) ( 1.0 - alpha);
+                    _a0 = (float)(1.0 + alpha);
+                    _a1 = (float)(-2.0 * Math.Cos(w0));
+                    _a2 = (float)(1.0 - alpha);
                     break;
             }
 

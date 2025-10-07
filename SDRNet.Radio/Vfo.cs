@@ -1,6 +1,6 @@
 using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public unsafe sealed class Vfo
     {
@@ -73,8 +73,8 @@ namespace SDRSharp.Radio
             {
                 if (value != _detectorType)
                 {
-                    _decimationModeHasChanged = (_detectorType == DetectorType.WFM && value != DetectorType.WFM) ||
-                                         (_detectorType != DetectorType.WFM && value == DetectorType.WFM);
+                    _decimationModeHasChanged = _detectorType == DetectorType.WFM && value != DetectorType.WFM ||
+                                         _detectorType != DetectorType.WFM && value == DetectorType.WFM;
                     _needNewDecimators = _decimationModeHasChanged;
                     _detectorType = value;
                     _needConfigure = true;
@@ -241,8 +241,8 @@ namespace SDRSharp.Radio
         {
             get
             {
-                return (_actualDetectorType == DetectorType.NFM && _fmDetector.IsSquelchOpen) ||
-                       (_actualDetectorType == DetectorType.AM && _amDetector.IsSquelchOpen);
+                return _actualDetectorType == DetectorType.NFM && _fmDetector.IsSquelchOpen ||
+                       _actualDetectorType == DetectorType.AM && _amDetector.IsSquelchOpen;
             }
         }
 
@@ -322,7 +322,7 @@ namespace SDRSharp.Radio
         {
             _actualDetectorType = _detectorType;
             var multiThreaded = _sampleRate >= _minThreadedSampleRate;
-            if (_downConverter == null || (multiThreaded && _downConverter.PhaseCount > 1))
+            if (_downConverter == null || multiThreaded && _downConverter.PhaseCount > 1)
             {
                 _downConverter = new DownConverter(multiThreaded ? Environment.ProcessorCount : 1);
             }
@@ -404,7 +404,7 @@ namespace SDRSharp.Radio
             int cutoff2 = 10000;
             var iqBW = _bandwidth / 2;
             int iqOrder = _actualDetectorType == DetectorType.WFM ? 60 : _filterOrder;
-            
+
             var coeffs = FilterBuilder.MakeLowPassKernel(_sampleRate / Math.Pow(2.0, _baseBandDecimationStageCount), iqOrder, iqBW, _windowType);
 
             if (_iqFilter == null || _decimationModeHasChanged)
@@ -462,7 +462,7 @@ namespace SDRSharp.Radio
             if (_baseBandDecimator.StageCount > 0)
             {
                 _baseBandDecimator.Process(iqBuffer, length);
-                length /= (int) Math.Pow(2.0, _baseBandDecimator.StageCount);
+                length /= (int)Math.Pow(2.0, _baseBandDecimator.StageCount);
             }
 
             _iqFilter.Process(iqBuffer, length);
@@ -475,8 +475,8 @@ namespace SDRSharp.Radio
 
             if (_rawAudioBuffer == null || _rawAudioBuffer.Length != length)
             {
-                _rawAudioBuffer = UnsafeBuffer.Create(length, sizeof (float));
-                _rawAudioPtr = (float*) _rawAudioBuffer;
+                _rawAudioBuffer = UnsafeBuffer.Create(length, sizeof(float));
+                _rawAudioPtr = (float*)_rawAudioBuffer;
             }
 
             if (_actualDetectorType != DetectorType.WFM)

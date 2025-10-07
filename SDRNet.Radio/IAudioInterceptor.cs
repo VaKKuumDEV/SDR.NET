@@ -1,19 +1,17 @@
-﻿using SDRSharp.Radio;
-
-namespace SDRSharp.Radio
+﻿namespace SDRNet.Radio
 {
     public interface IAudioInterceptor
     {
 
-        FloatFifoStream Input { get; set; } 
+        FloatFifoStream Input { get; set; }
         FloatFifoStream Output { get; set; }
 
         double SampleRate { get; set; }
 
         int OutputBufferSize { set; }
 
-        void Start(); 
-        void Stop();        
-        
+        void Start();
+        void Stop();
+
     }
 }

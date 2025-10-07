@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public enum DecimationFilterType
     {
@@ -649,7 +649,7 @@ namespace SDRSharp.Radio
             {
                 var even = buffer[i];
                 var odd = buffer[i + 1];
-                buffer[j] = (float) (0.125 * (odd + _xEven + 3.0 * (_xOdd + even)));
+                buffer[j] = (float)(0.125 * (odd + _xEven + 3.0 * (_xOdd + even)));
                 _xOdd = odd;
                 _xEven = even;
             }

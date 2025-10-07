@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
 #if !__MonoCS__
     [StructLayout(LayoutKind.Sequential, Pack = 16)]

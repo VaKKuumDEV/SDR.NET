@@ -1,4 +1,4 @@
-﻿namespace SDRSharp.Radio
+﻿namespace SDRNet.Radio
 {
     public unsafe sealed class LsbDetector
     {
@@ -21,7 +21,7 @@
 
         public int BfoFrequency
         {
-            get { return (int) _bfo.Frequency; }
+            get { return (int)_bfo.Frequency; }
             set { _bfo.Frequency = value; }
         }
     }

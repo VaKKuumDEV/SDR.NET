@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SDRSharp.Radio
+namespace SDRNet.Radio
 {
     public class RdsDetectorBank
     {
@@ -56,10 +56,10 @@ namespace SDRSharp.Radio
 
         private readonly RdsDumpGroups _dumpGroups;
         private readonly bool _useFec = false;
-        private readonly UInt16[] _blocks = new UInt16[4];
+        private readonly ushort[] _blocks = new ushort[4];
         private BlockSequence _sequence = BlockSequence.WaitBitSync;
-        private UInt16 _syndrome;
-        private UInt32 _raw;
+        private ushort _syndrome;
+        private uint _raw;
         private int _count;
 
         public SyndromeDetector(RdsDumpGroups dumpGroups)
@@ -79,7 +79,7 @@ namespace SDRSharp.Radio
                 _syndrome ^= 0x3d8;
 
                 _sequence = _syndrome == 0 ? BlockSequence.GotA : BlockSequence.WaitBitSync;
-                _blocks[0] = (UInt16)((_raw >> CheckwordBitsCount) & 0xffff);
+                _blocks[0] = (ushort)(_raw >> CheckwordBitsCount & 0xffff);
                 _count = 0;
             }
 
@@ -110,7 +110,7 @@ namespace SDRSharp.Radio
                     _sequence = BlockSequence.GotB;
                     break;
                 case BlockSequence.GotB:
-                    _syndrome ^= (UInt16)((_blocks[1] & 0x800) == 0 ? 0x25c : 0x3cc);
+                    _syndrome ^= (ushort)((_blocks[1] & 0x800) == 0 ? 0x25c : 0x3cc);
                     _sequence = BlockSequence.GotC;
                     break;
                 case BlockSequence.GotC:
@@ -130,8 +130,8 @@ namespace SDRSharp.Radio
                         _sequence = BlockSequence.WaitBitSync;
                     }
                     else
-                    {                        
-                        _blocks[blockIndex] = (UInt16)(_raw & 0xffff);                        
+                    {
+                        _blocks[blockIndex] = (ushort)(_raw & 0xffff);
                     }
                 }
                 else
@@ -141,35 +141,35 @@ namespace SDRSharp.Radio
             }
             else
             {
-                _blocks[blockIndex] = (UInt16)((_raw >> CheckwordBitsCount) & 0xffff);
+                _blocks[blockIndex] = (ushort)(_raw >> CheckwordBitsCount & 0xffff);
             }
         }
 
         private int ApplyFEC()
         {
-            const UInt16 poly = 0x5b9;
-            const int errorMask = (1 << 5);
+            const ushort poly = 0x5b9;
+            const int errorMask = 1 << 5;
 
             var correction = (uint)(1 << 25);
             var correctedBitsCount = 0;
-            
+
             for (var i = 0; i < 16; i++)
             {
-                var st = ((_syndrome & 0x200) == 0x200);
+                var st = (_syndrome & 0x200) == 0x200;
                 var bitError = (_syndrome & errorMask) == 0;
-                _raw ^= (st && bitError) ? correction : 0;
+                _raw ^= st && bitError ? correction : 0;
                 _syndrome <<= 1;
-                _syndrome ^= ((st && !bitError) ? poly : (UInt16)0);
-                correctedBitsCount += (st && bitError) ? 1 : 0;
+                _syndrome ^= st && !bitError ? poly : (ushort)0;
+                correctedBitsCount += st && bitError ? 1 : 0;
                 correction >>= 1;
             }
             _syndrome &= 0x3ff;
             return correctedBitsCount;
         }
 
-        private static UInt16 BuildSyndrome(uint raw)
+        private static ushort BuildSyndrome(uint raw)
         {
-            UInt16[] Parity = 
+            ushort[] Parity =
             {
                 0x2DC,
                 0x16E,
@@ -190,10 +190,10 @@ namespace SDRSharp.Radio
             };
 
             var block = raw & 0x3ffffff;
-            var syndrome = (UInt16)(block >> 16);
+            var syndrome = (ushort)(block >> 16);
             for (var i = 0; i < 16; i++)
             {
-                syndrome ^= ((block & 0x8000) == 0x8000) ? Parity[i] : (UInt16) 0;
+                syndrome ^= (block & 0x8000) == 0x8000 ? Parity[i] : (ushort)0;
                 block <<= 1;
             }
 

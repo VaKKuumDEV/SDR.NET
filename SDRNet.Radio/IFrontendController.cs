@@ -10,7 +10,7 @@
         void Close();
         bool IsSoundCardBased { get; }
         string SoundCardHint { get; }
-        double Samplerate { get; }
+        double Samplerate { get; set; }
         long Frequency { get; set; }
     }
 }

@@ -100,6 +100,7 @@ namespace SDRNet.RTLSDR
         public double Samplerate
         {
             get { return _rtlDevice == null ? 0.0 : _rtlDevice.Samplerate; }
+            set { if (_rtlDevice != null) _rtlDevice.Samplerate = Convert.ToUInt32(value); }
         }
 
         public long Frequency

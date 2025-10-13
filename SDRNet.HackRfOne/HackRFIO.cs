@@ -100,6 +100,7 @@ namespace SDRNet.HackRfOne
         public double Samplerate
         {
             get { return _hackRFDevice == null ? 0.0 : _hackRFDevice.SampleRate; }
+            set { if (_hackRFDevice != null) _hackRFDevice.SampleRate = value; }
         }
 
         public long Frequency

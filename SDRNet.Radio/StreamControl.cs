@@ -456,7 +456,6 @@ namespace SDRNet.Radio
                     _iqStream = new ComplexFifoStream(BlockMode.BlockingRead);
                     _audioStream = _streamHookManager == null ? new FloatFifoStream(BlockMode.BlockingWrite, _outputBufferSize) : _streamHookManager.FirstAudioStream;
                     _wavePlayer = new WavePlayer(_outputDevice, _outputSampleRate, _outputBufferSize / 2, PlayerFiller);
-                    _frontend.Start(FrontendFiller);
                     _dspThread = new Thread(DSPProc);
                     _dspThread.Start();
                     break;
@@ -534,6 +533,7 @@ namespace SDRNet.Radio
                 _inputType = InputType.Plugin;
 
                 _frontend = frontend;
+                _frontend.SamplesAvailable += FrontendFiller;
                 _inputSampleRate = _frontend.Samplerate;
 
                 _outputDevice = outputDevice;

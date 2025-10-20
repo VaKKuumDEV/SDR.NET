@@ -4,8 +4,10 @@
 
     public interface IFrontendController
     {
+        event SamplesAvailableDelegate SamplesAvailable;
+
         void Open();
-        void Start(SamplesAvailableDelegate callback);
+        void Start();
         void Stop();
         void Close();
         bool IsSoundCardBased { get; }

@@ -6,7 +6,8 @@ namespace SDRNet.RTLSDR
     {
         private RtlDevice? _rtlDevice;
         private uint _frequency = 105500000;
-        private Radio.SamplesAvailableDelegate? _callback;
+
+        public event Radio.SamplesAvailableDelegate SamplesAvailable;
 
         ~RtlSdrIO()
         {
@@ -64,13 +65,13 @@ namespace SDRNet.RTLSDR
             }
         }
 
-        public void Start(Radio.SamplesAvailableDelegate callback)
+        public void Start()
         {
             if (_rtlDevice == null)
             {
                 throw new ApplicationException("No device selected");
             }
-            _callback = callback;
+            
             try
             {
                 _rtlDevice.Start();
@@ -116,6 +117,6 @@ namespace SDRNet.RTLSDR
             }
         }
 
-        private void RtlDevice_SamplesAvailable(object sender, SamplesAvailableEventArgs e) => _callback?.Invoke(this, e.Buffer, e.Length);
+        private void RtlDevice_SamplesAvailable(object sender, SamplesAvailableEventArgs e) => SamplesAvailable?.Invoke(this, e.Buffer, e.Length);
     }
 }

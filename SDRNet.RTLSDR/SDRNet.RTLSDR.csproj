@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>VaKKuum</Authors>
     <Description>Библиотека для работы с SDR через RTLSDR</Description>
     <AssemblyVersion>$(VersionPrefix)</AssemblyVersion>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SDRNet.Radio" Version="1.0.2" />
+    <PackageReference Include="SDRNet.Radio" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>

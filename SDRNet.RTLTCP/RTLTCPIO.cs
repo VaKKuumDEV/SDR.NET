@@ -44,12 +44,13 @@ namespace SDRNet.RTLTCP
         private uint _tunerGainCount;
         private uint _tunerType;
         private int _frequencyCorrection;
-        private SamplesAvailableDelegate? _callback;
         private Thread? _sampleThread;
         private UnsafeBuffer? _iqBuffer;
         private Complex* _iqBufferPtr;
         private Socket? _s;
         private readonly byte[] _cmdBuffer = new byte[5];
+
+        public event SamplesAvailableDelegate SamplesAvailable;
 
         #region Public Properties
 
@@ -180,9 +181,8 @@ namespace SDRNet.RTLTCP
             }
         }
 
-        public void Start(SamplesAvailableDelegate callback)
+        public void Start()
         {
-            _callback = callback;
             _s = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
             {
                 NoDelay = true
@@ -216,7 +216,7 @@ namespace SDRNet.RTLTCP
                 _sampleThread.Join();
                 _sampleThread = null;
             }
-            _callback = null;
+            SamplesAvailable = null;
         }
 
         #region Private Methods
@@ -317,7 +317,7 @@ namespace SDRNet.RTLTCP
                 ptr->Real = _lutPtr[*rawPtr++];
                 ptr++;
             }
-            _callback?.Invoke(this, _iqBufferPtr, sampleCount);
+            SamplesAvailable?.Invoke(this, _iqBufferPtr, sampleCount);
         }
 
         #endregion

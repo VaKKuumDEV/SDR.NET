@@ -7,7 +7,8 @@ namespace SDRNet.HackRfOne
         private HackRFDevice? _hackRFDevice;
         private long _frequency = 105500000;
         private double _frequencyCorrection;
-        private Radio.SamplesAvailableDelegate? _callback;
+
+        public event Radio.SamplesAvailableDelegate SamplesAvailable;
 
         ~HackRFIO()
         {
@@ -64,13 +65,13 @@ namespace SDRNet.HackRfOne
             }
         }
 
-        public void Start(Radio.SamplesAvailableDelegate callback)
+        public void Start()
         {
             if (_hackRFDevice == null)
             {
                 throw new ApplicationException("No device selected");
             }
-            _callback = callback;
+            
             try
             {
                 _hackRFDevice.Start();
@@ -127,6 +128,6 @@ namespace SDRNet.HackRfOne
             }
         }
 
-        private void HackRFDevice_SamplesAvailable(object sender, SamplesAvailableEventArgs e) => _callback?.Invoke(this, e.Buffer, e.Length);
+        private void HackRFDevice_SamplesAvailable(object sender, SamplesAvailableEventArgs e) => SamplesAvailable?.Invoke(this, e.Buffer, e.Length);
     }
 }

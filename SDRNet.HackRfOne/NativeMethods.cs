@@ -27,11 +27,7 @@ namespace SDRNet.HackRfOne
 
     public class NativeMethods
     {
-#if WINDOWS
-        private const string LibHackRF = "hackrf";
-#else
         private const string LibHackRF = "libhackrf";
-#endif
 
         #region Native Methods
 

@@ -3,11 +3,14 @@ using System.Runtime.InteropServices;
 
 namespace SDRNet.HackRfOne
 {
-    public unsafe sealed class HackRFDevice : IDisposable
+    public unsafe sealed class HackRFDevice : IDisposable, ITransmitter
     {
         private const uint DefaultFrequency = 105500000;
         private const int DefaultSamplerate = 10000000;
         private const string DeviceName = "HackRF Jawbreaker";
+
+        /// <summary>Максимальное усиление тракта передачи HackRF One, дБ.</summary>
+        public const uint MaxTxVGAGain = 47;
 
         private static readonly float* _lutPtr;
         private static readonly UnsafeBuffer _lutBuffer = UnsafeBuffer.Create(256, sizeof(float));
@@ -17,6 +20,7 @@ namespace SDRNet.HackRfOne
         private double _sampleRate = DefaultSamplerate;
         private uint _lnaGain;
         private uint _vgaGain;
+        private uint _txVgaGain;
         private bool _amp;
 
         private GCHandle _gcHandle;
@@ -26,6 +30,12 @@ namespace SDRNet.HackRfOne
         private readonly SamplesAvailableEventArgs _eventArgs = new();
         private static readonly hackrf_sample_block_cb_fn _HackRFCallback = HackRFSamplesAvailable;
         private static readonly uint _readLength = (uint)16 * 1024;
+
+        private UnsafeBuffer? _txIqBuffer;
+        private Complex* _txIqPtr;
+        private bool _isTxStreaming;
+        private readonly TxSamplesNeededEventArgs _txEventArgs = new();
+        private static readonly hackrf_sample_block_cb_fn _HackRFTxCallback = HackRFTxSamplesAvailable;
 
         static HackRFDevice()
         {
@@ -69,6 +79,8 @@ namespace SDRNet.HackRfOne
             {
                 _gcHandle.Free();
             }
+            _txIqBuffer?.Dispose();
+            _txIqBuffer = null;
             _dev = nint.Zero;
             GC.SuppressFinalize(this);
         }
@@ -80,6 +92,11 @@ namespace SDRNet.HackRfOne
             if (_isStreaming)
             {
                 throw new ApplicationException("Start() Already running");
+            }
+
+            if (_isTxStreaming)
+            {
+                throw new ApplicationException("HackRF is half-duplex: stop transmitting before receiving");
             }
 
             var r = NativeMethods.hackrf_set_sample_rate(_dev, _sampleRate);
@@ -136,13 +153,13 @@ namespace SDRNet.HackRfOne
 
         public void Stop()
         {
-            if (!_isStreaming)
+            if (_isStreaming)
             {
-                return;
+                NativeMethods.hackrf_stop_rx(_dev);
+                _isStreaming = false;
             }
 
-            NativeMethods.hackrf_stop_rx(_dev);
-            _isStreaming = false;
+            StopTransmit();
         }
 
         public uint Index
@@ -178,6 +195,24 @@ namespace SDRNet.HackRfOne
                 {
                     NativeMethods.hackrf_set_vga_gain(_dev, _vgaGain);
 
+                }
+            }
+        }
+
+        /// <summary>
+        /// Усиление тракта передачи TXVGA в дБ. Значения ограничиваются диапазоном
+        /// 0–47 дБ и квантуются драйвером шагом 1 дБ.
+        /// </summary>
+        public uint TxVGAGain
+        {
+            get { return _txVgaGain; }
+            set
+            {
+                if (value > MaxTxVGAGain) value = MaxTxVGAGain;
+                _txVgaGain = value;
+                if (_dev != nint.Zero)
+                {
+                    NativeMethods.hackrf_set_txvga_gain(_dev, _txVgaGain);
                 }
             }
         }
@@ -223,7 +258,19 @@ namespace SDRNet.HackRfOne
 
         public bool IsStreaming
         {
+            get { return _isStreaming || _isTxStreaming; }
+        }
+
+        /// <summary>Признак активного приёма.</summary>
+        public bool IsReceiving
+        {
             get { return _isStreaming; }
+        }
+
+        /// <summary>Признак активной передачи.</summary>
+        public bool IsTransmitting
+        {
+            get { return _isTxStreaming; }
         }
 
         #region Streaming methods
@@ -265,6 +312,134 @@ namespace SDRNet.HackRfOne
             }
 
             instance.ComplexSamplesAvailable(instance._iqPtr, instance._iqBuffer.Length);
+            return 0;
+        }
+
+        #endregion
+
+        #region Transmit methods
+
+        /// <summary>
+        /// Возникает, когда драйверу нужен очередной блок отсчётов для передачи.
+        /// Подписчик обязан заполнить предоставленный буфер.
+        /// </summary>
+        public event TxSamplesNeededDelegate? TxSamplesNeeded;
+
+        /// <summary>Запускает поток передачи. HackRF One полудуплексный, поэтому приём должен быть остановлен.</summary>
+        public void StartTransmit()
+        {
+            if (_isTxStreaming)
+            {
+                throw new ApplicationException("StartTransmit() Already running");
+            }
+
+            if (_isStreaming)
+            {
+                throw new ApplicationException("HackRF is half-duplex: stop receiving before transmitting");
+            }
+
+            ApplyTransmitParameters();
+
+            var r = NativeMethods.hackrf_start_tx(_dev, _HackRFTxCallback, (nint)_gcHandle);
+            if (r != 0)
+            {
+                throw new ApplicationException("hackrf_start_tx() error");
+            }
+
+            r = NativeMethods.hackrf_is_streaming(_dev);
+            if (r != 1)
+            {
+                throw new ApplicationException("hackrf_is_streaming() Error");
+            }
+
+            _isTxStreaming = true;
+        }
+
+        /// <summary>Останавливает поток передачи.</summary>
+        public void StopTransmit()
+        {
+            if (!_isTxStreaming)
+            {
+                return;
+            }
+
+            NativeMethods.hackrf_stop_tx(_dev);
+            _isTxStreaming = false;
+        }
+
+        /// <summary>
+        /// Применяет к устройству параметры, общие для приёма и передачи:
+        /// частоту дискретизации, частоту настройки, полосу фильтра и усилитель.
+        /// </summary>
+        private void ApplyTransmitParameters()
+        {
+            var r = NativeMethods.hackrf_set_sample_rate(_dev, _sampleRate);
+            if (r != 0)
+            {
+                throw new ApplicationException("hackrf_sample_rate_set() error");
+            }
+
+            r = NativeMethods.hackrf_set_amp_enable(_dev, (byte)(_amp ? 1 : 0));
+            if (r != 0)
+            {
+                throw new ApplicationException("hackrf_set_amp_enable() error");
+            }
+
+            var baseband_filter_bw_hz = NativeMethods.hackrf_compute_baseband_filter_bw_round_down_lt((uint)_sampleRate);
+            r = NativeMethods.hackrf_set_baseband_filter_bandwidth(_dev, baseband_filter_bw_hz);
+            if (r != 0)
+            {
+                throw new ApplicationException("hackrf_baseband_filter_bandwidth_set() error");
+            }
+
+            r = NativeMethods.hackrf_set_freq(_dev, _centerFrequency);
+            if (r != 0)
+            {
+                throw new ApplicationException("hackrf_set_freq() error");
+            }
+
+            r = NativeMethods.hackrf_set_txvga_gain(_dev, _txVgaGain);
+            if (r != 0)
+            {
+                throw new ApplicationException("hackrf_set_txvga_gain() error");
+            }
+        }
+
+        private void ComplexTxSamplesNeeded(Complex* buffer, int length)
+        {
+            // Зануляем буфер, чтобы при неполном заполнении подписчиком
+            // в эфир не ушли устаревшие данные от предыдущего блока.
+            SignalGenerator.Silence(buffer, length);
+
+            if (TxSamplesNeeded != null)
+            {
+                _txEventArgs.Buffer = buffer;
+                _txEventArgs.Length = length;
+                TxSamplesNeeded(this, _txEventArgs);
+            }
+        }
+
+        private static int HackRFTxSamplesAvailable(hackrf_transfer* ptr)
+        {
+            nint ctx = ptr->tx_ctx;
+
+            var gcHandle = GCHandle.FromIntPtr(ctx);
+            if (!gcHandle.IsAllocated) return -1;
+            var instance = (HackRFDevice?)gcHandle.Target;
+            if (instance == null) return -1;
+
+            var sampleCount = ptr->buffer_length / 2;
+            if (instance._txIqBuffer == null || instance._txIqBuffer.Length != sampleCount)
+            {
+                instance._txIqBuffer?.Dispose();
+                instance._txIqBuffer = UnsafeBuffer.Create(sampleCount, sizeof(Complex));
+                instance._txIqPtr = (Complex*)instance._txIqBuffer;
+            }
+
+            instance.ComplexTxSamplesNeeded(instance._txIqPtr, sampleCount);
+            SampleConverter.ComplexToInt8(instance._txIqPtr, sampleCount, ptr->buffer);
+            ptr->valid_length = ptr->buffer_length;
+
             return 0;
         }
 

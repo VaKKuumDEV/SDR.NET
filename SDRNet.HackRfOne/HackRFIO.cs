@@ -2,13 +2,14 @@
 
 namespace SDRNet.HackRfOne
 {
-    public unsafe class HackRFIO : IFrontendController, IDisposable
+    public unsafe class HackRFIO : IFrontendController, ITransmitter, IDisposable
     {
         private HackRFDevice? _hackRFDevice;
         private long _frequency = 105500000;
         private double _frequencyCorrection;
 
         public event Radio.SamplesAvailableDelegate SamplesAvailable;
+        public event TxSamplesNeededDelegate? TxSamplesNeeded;
 
         ~HackRFIO()
         {
@@ -25,6 +26,7 @@ namespace SDRNet.HackRfOne
             Close();
             _hackRFDevice = new HackRFDevice();
             _hackRFDevice.SamplesAvailable += HackRFDevice_SamplesAvailable;
+            _hackRFDevice.TxSamplesNeeded += HackRFDevice_TxSamplesNeeded;
             _hackRFDevice.Frequency = _frequency;
         }
 
@@ -60,6 +62,7 @@ namespace SDRNet.HackRfOne
             if (_hackRFDevice != null)
             {
                 _hackRFDevice.SamplesAvailable -= HackRFDevice_SamplesAvailable;
+                _hackRFDevice.TxSamplesNeeded -= HackRFDevice_TxSamplesNeeded;
                 _hackRFDevice.Dispose();
                 _hackRFDevice = null;
             }
@@ -129,5 +132,48 @@ namespace SDRNet.HackRfOne
         }
 
         private void HackRFDevice_SamplesAvailable(object sender, SamplesAvailableEventArgs e) => SamplesAvailable?.Invoke(this, e.Buffer, e.Length);
+
+        #region Transmit
+
+        /// <summary>Признак активной передачи.</summary>
+        public bool IsTransmitting
+        {
+            get { return _hackRFDevice?.IsTransmitting ?? false; }
+        }
+
+        /// <summary>Усиление тракта передачи TXVGA (0–47 дБ).</summary>
+        public uint TxVGAGain
+        {
+            get { return _hackRFDevice?.TxVGAGain ?? 0; }
+            set { if (_hackRFDevice != null) _hackRFDevice.TxVGAGain = value; }
+        }
+
+        /// <summary>Встроенный усилитель (front-end amplifier, +14 дБ).</summary>
+        public bool EnableAmp
+        {
+            get { return _hackRFDevice?.EnableAmp ?? false; }
+            set { if (_hackRFDevice != null) _hackRFDevice.EnableAmp = value; }
+        }
+
+        /// <summary>Запускает поток передачи. При необходимости открывает устройство.</summary>
+        public void StartTransmit()
+        {
+            if (_hackRFDevice == null)
+            {
+                Open();
+            }
+
+            _hackRFDevice!.StartTransmit();
+        }
+
+        /// <summary>Останавливает поток передачи.</summary>
+        public void StopTransmit()
+        {
+            _hackRFDevice?.StopTransmit();
+        }
+
+        private void HackRFDevice_TxSamplesNeeded(object sender, TxSamplesNeededEventArgs e) => TxSamplesNeeded?.Invoke(this, e);
+
+        #endregion
     }
 }

@@ -49,6 +49,12 @@ namespace SDRNet.HackRfOne
         [DllImport(LibHackRF, EntryPoint = "hackrf_stop_rx", CallingConvention = CallingConvention.StdCall)]
         public static extern int hackrf_stop_rx(nint dev);
 
+        [DllImport(LibHackRF, EntryPoint = "hackrf_start_tx", CallingConvention = CallingConvention.StdCall)]
+        public static extern int hackrf_start_tx(nint dev, hackrf_sample_block_cb_fn cb, nint tx_ctx);
+
+        [DllImport(LibHackRF, EntryPoint = "hackrf_stop_tx", CallingConvention = CallingConvention.StdCall)]
+        public static extern int hackrf_stop_tx(nint dev);
+
         [DllImport(LibHackRF, EntryPoint = "hackrf_is_streaming", CallingConvention = CallingConvention.StdCall)]
         public static extern int hackrf_is_streaming(nint dev);
 
@@ -92,6 +98,9 @@ namespace SDRNet.HackRfOne
 
         [DllImport(LibHackRF, EntryPoint = "hackrf_set_vga_gain", CallingConvention = CallingConvention.StdCall)]
         public static extern int hackrf_set_vga_gain(nint dev, uint value);
+
+        [DllImport(LibHackRF, EntryPoint = "hackrf_set_txvga_gain", CallingConvention = CallingConvention.StdCall)]
+        public static extern int hackrf_set_txvga_gain(nint dev, uint value);
 
         #endregion
     }

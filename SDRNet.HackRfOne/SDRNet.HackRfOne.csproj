@@ -13,11 +13,11 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/VaKKuumDEV/SDR.NET</RepositoryUrl>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>1.0.4</Version>
+		<Version>1.0.5</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="SDRNet.Radio" Version="1.0.3" />
+		<PackageReference Include="SDRNet.Radio" Version="1.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>

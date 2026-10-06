@@ -16,6 +16,7 @@ namespace SDRNet.RTLSDR
 
         public void Dispose()
         {
+            Close();
             GC.SuppressFinalize(this);
         }
 

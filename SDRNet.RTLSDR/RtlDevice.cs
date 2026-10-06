@@ -129,9 +129,10 @@ namespace SDRNet.RTLSDR
                 throw new ApplicationException("Cannot access RTL device");
             }
 
-            _worker = new(StreamProc)
+            _worker = new Thread(StreamProc)
             {
-                Priority = ThreadPriority.Highest
+                Priority = ThreadPriority.Highest,
+                IsBackground = true
             };
             _worker.Start();
         }
@@ -174,6 +175,18 @@ namespace SDRNet.RTLSDR
                     NativeMethods.rtlsdr_set_sample_rate(_dev, _sampleRate);
                 }
             }
+        }
+
+        /// <summary>Фактическая частота дискретизации, установленная в устройстве.</summary>
+        public uint ActualSamplerate
+        {
+            get { return _dev == nint.Zero ? 0 : NativeMethods.rtlsdr_get_sample_rate(_dev); }
+        }
+
+        /// <summary>Фактическая частота настройки, установленная в устройстве.</summary>
+        public uint ActualFrequency
+        {
+            get { return _dev == nint.Zero ? 0 : NativeMethods.rtlsdr_get_center_freq(_dev); }
         }
 
         public uint Frequency

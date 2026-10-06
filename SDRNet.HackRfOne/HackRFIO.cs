@@ -18,6 +18,7 @@ namespace SDRNet.HackRfOne
 
         public void Dispose()
         {
+            Close();
             GC.SuppressFinalize(this);
         }
 
